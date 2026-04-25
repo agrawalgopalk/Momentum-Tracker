@@ -1,0 +1,7 @@
+# Ignore the cache directory
+Momentum-Tracker/mps_cache/
+
+# Ignore Excel and CSV files
+*.xlsx
+*.csv
+*.pyc
