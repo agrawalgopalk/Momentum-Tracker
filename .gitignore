@@ -1,7 +1,20 @@
-# Ignore the cache directory
-Momentum-Tracker/mps_cache/
+# --- Python Specific ---
+*.pyc
+__pycache__/
 
-# Ignore Excel and CSV files
+# --- Environment Configuration ---
+.env
+.env.local
+
+# --- Project Specific (Ignore everywhere) ---
+# Ignores 'mps_cache' folders in any directory
+**/mps_cache/
+
+# Ignore data exports and charts
 *.xlsx
 *.csv
-*.pyc
+*.png
+
+# Ignore virtual environments (Standard practice)
+venv/
+.venv/
