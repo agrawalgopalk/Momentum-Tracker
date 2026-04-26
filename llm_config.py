@@ -20,6 +20,7 @@ class LLMConfig:
             print(f"[DEBUG] Initializing Groq with model: {os.getenv('GROQ_MODEL')}")
             return LLM(
                 model=f"groq/{os.getenv('GROQ_MODEL')}",
+                temperature=0, # Low temperature is CRITICAL for preventing hallucinated tool syntax
                 api_key=os.getenv("GROQ_API_KEY")
             )
         

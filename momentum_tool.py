@@ -29,12 +29,22 @@ from __future__ import annotations
 import json
 import traceback
 from datetime import datetime
-from typing import Any
+from typing import Any, Type
 
 from crewai.tools import BaseTool
 from pydantic import Field
+from pydantic import BaseModel, Field
 
-
+# 1. Define the schema explicitly
+class MomentumToolInput(BaseModel):
+    category: str = Field(
+        default="Nifty100", 
+        description="The index category to analyze (Nifty100, Midcap150, Smallcap250, Nifty500)."
+    )
+    top_n: int = Field(
+        default=20, 
+        description="The number of top stocks to return."
+    )
 # ─────────────────────────────────────────────────────────────────────────────
 # Tool
 # ─────────────────────────────────────────────────────────────────────────────
@@ -58,6 +68,8 @@ class MomentumBackboneTool(BaseTool):
         "clean comma-separated ticker list for downstream agents."
     )
 
+    # 2. Link the schema to the tool
+    args_schema: Type[BaseModel] = MomentumToolInput
     # ── Defaults ──────────────────────────────────────────────────────────
     default_category: str  = Field(default="Nifty100")
     default_top_n:    int  = Field(default=20)
@@ -66,7 +78,8 @@ class MomentumBackboneTool(BaseTool):
     # Entry point
     # ─────────────────────────────────────────────────────────────────────
 
-    def _run(self, strategy_params: str = "{}") -> str:
+    # def _run(self, strategy_params: str = "{}") -> str:
+    def _run(self, category: str, top_n: int) -> str:
         """
         Execute the momentum backbone and return a formatted results string.
 
@@ -76,9 +89,9 @@ class MomentumBackboneTool(BaseTool):
             JSON object string or plain category name.
         """
         try:
-            params   = self._parse_params(strategy_params)
-            category = params["category"]
-            top_n    = params["top_n"]
+            # params   = self._parse_params(strategy_params)
+            # category = params["category"]
+            # top_n    = params["top_n"]
             # ── Bootstrap system components ────────────────────────────
             config, db, strategy, loader, selector = self._init_components()
 
