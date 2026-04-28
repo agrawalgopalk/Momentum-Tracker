@@ -120,7 +120,7 @@ class StockSelector:
             )
 
         # Display top N
-        display_cols = ["Symbol", "WMS", "P_Pct", "V_Pct", "RS_Raw"]
+        display_cols = ["Symbol", "WMS", "P_Pct", "V_Pct", "RS_Raw", "RSI_Raw", "MFI_Raw", "CCI_Raw"]
         disp = df[
             [c for c in display_cols if c in df.columns]
         ].head(top_n).reset_index(drop=True)

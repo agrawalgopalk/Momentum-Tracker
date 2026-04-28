@@ -7,13 +7,13 @@ Usage
   from portfolio_monitor import run_monitor
 
   held = [
-      {"ticker": "RELIANCE.NS", "buy_price": 2850.0, "qty": 50},
-      {"ticker": "INFY.NS",     "buy_price": 1540.0, "qty": 100},
-      {"ticker": "HDFCBANK.NS", "buy_price": 1620.0, "qty": 80},
+      {"symbol": "RELIANCE.NS", "buy_price": 2850.0, "qty": 50},
+      {"symbol": "INFY.NS",     "buy_price": 1540.0, "qty": 100},
+      {"symbol": "HDFCBANK.NS", "buy_price": 1620.0, "qty": 80},
   ]
 
   alerts = run_monitor(held)
-  print(alerts)
+  log.info(alerts)
 
 Or run directly:
   python portfolio_monitor.py
@@ -37,7 +37,7 @@ Alert levels
 
 Architecture
 ────────────
-  Agent 1 – News Scanner   : fetches live news per ticker (SerperDevTool)
+  Agent 1 – News Scanner   : fetches live news per symbol (SerperDevTool)
   Agent 2 – Alert Classifier: scores each story for impact & severity
   Two sequential tasks → final alert report printed to stdout.
 """
@@ -53,65 +53,14 @@ from search_tool_setup import search_tool  # no API key needed
 
 from llm_config import LLMConfig
 
-# ─────────────────────────────────────────────────────────────────────────────
-# LLM setup
-# ─────────────────────────────────────────────────────────────────────────────
-
-llm_scanner    = LLMConfig.get_llm(role="scanner")     # fast / cheap model OK
-llm_classifier = LLMConfig.get_llm(role="analyst")
+from logger import get_logger
+log = get_logger(__name__)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Shared tool
-# ─────────────────────────────────────────────────────────────────────────────
 
-# search_tool imported from search_tool_setup
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Agents
-# ─────────────────────────────────────────────────────────────────────────────
-
-news_scanner = Agent(
-    role="Portfolio News Scanner",
-    goal=(
-        "For each held stock, retrieve the latest news (last 7 days) and "
-        "summarise every potentially market-moving story in a structured format."
-    ),
-    backstory=(
-        "You are a real-time market intelligence analyst. You monitor NSE-listed "
-        "stocks owned by a retail investor and flag any news that could affect "
-        "the stock price significantly. You are rigorous, concise, and never "
-        "miss a corporate action, regulatory filing, or earnings announcement."
-    ),
-    llm=llm_scanner,
-    tools=[search_tool],
-    verbose=True,
-    allow_delegation=False,
-    # ADD THIS LINE TO PREVENT HALLUCINATED XML
-    system_prompt="You are an AI with access to the 'web_search' tool. "
-                  "When you need to search the web, you MUST invoke the tool directly. "
-                  "DO NOT write XML tags, do not output <function=...> strings, "
-                  "and do not simulate tool calls as text. Use the tool interface provided."
-)
-
-alert_classifier = Agent(
-    role="Portfolio Alert Classifier",
-    goal=(
-        "For each news summary, assess the potential price impact and assign a "
-        "RED / YELLOW / GREEN alert level with a recommended action."
-    ),
-    backstory=(
-        "You are a risk-management specialist for a long-only Indian equity "
-        "portfolio. Your job is to protect capital by catching negative catalysts "
-        "early – before they fully appear in price. You apply a systematic "
-        "severity framework and are deliberately conservative: when in doubt you "
-        "escalate to RED rather than miss a real threat."
-    ),
-    llm=llm_classifier,
-    verbose=True,
-)
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Task factory (created fresh per run so held positions are injected)
+# Agents are also created here — NOT at module level — so the LLM is only
+# initialised when run_monitor() is actually called, not on every import.
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _build_tasks(held: list[dict]) -> tuple[Task, Task]:
@@ -120,15 +69,59 @@ def _build_tasks(held: list[dict]) -> tuple[Task, Task]:
 
     Parameters
     ----------
-    held : list of dicts with keys: ticker, buy_price, qty
+    held : list of dicts with keys: symbol, buy_price, qty
     """
     # ── Portfolio snapshot for the prompt ─────────────────────────────────
     portfolio_lines = "\n".join(
-        f"  • {h['ticker']:20s}  buy @ ₹{h['buy_price']:.2f}  qty {h['qty']}"
+        f"  • {h['symbol']:20s}  buy @ ₹{h['buy_price']:.2f}  qty {h['qty']}"
         for h in held
     )
-    ticker_csv = ", ".join(h["ticker"] for h in held)
+    symbol_csv = ", ".join(h["symbol"] for h in held)
     as_of      = datetime.now().strftime("%Y-%m-%d %H:%M IST")
+    # ── Agents (created here so LLM init happens only when called) ────────────
+    llm_scanner    = LLMConfig.get_llm(role="scanner")
+    llm_classifier = LLMConfig.get_llm(role="analyst")
+
+    news_scanner = Agent(
+        role="Portfolio News Scanner",
+        goal=(
+            "For each held stock, retrieve the latest news (last 7 days) and "
+            "summarise every potentially market-moving story in a structured format."
+        ),
+        backstory=(
+            "You are a real-time market intelligence analyst. You monitor NSE-listed "
+            "stocks owned by a retail investor and flag any news that could affect "
+            "the stock price significantly. You are rigorous, concise, and never "
+            "miss a corporate action, regulatory filing, or earnings announcement."
+        ),
+        llm=llm_scanner,
+        tools=[search_tool],
+        verbose=True,
+        allow_delegation=False,
+        system_prompt="You are an AI with access to the 'web_search' tool. "
+                      "When you need to search the web, you MUST invoke the tool directly. "
+                      "DO NOT write XML tags, do not output <function=...> strings, "
+                      "and do not simulate tool calls as text. Use the tool interface provided.",
+    )
+
+    alert_classifier = Agent(
+        role="Portfolio Alert Classifier",
+        goal=(
+            "For each news summary, assess the potential price impact and assign a "
+            "RED / YELLOW / GREEN alert level with a recommended action."
+        ),
+        backstory=(
+            "You are a risk-management specialist for a long-only Indian equity "
+            "portfolio. Your job is to protect capital by catching negative catalysts "
+            "early – before they fully appear in price. You apply a systematic "
+            "severity framework and are deliberately conservative: when in doubt you "
+            "escalate to RED rather than miss a real threat."
+        ),
+        llm=llm_classifier,
+        verbose=True,
+    )
+
+
 
     # ── Task 1: News collection ────────────────────────────────────────────
     task_news = Task(
@@ -137,13 +130,13 @@ As of {as_of}, the investor holds the following positions:
 
 {portfolio_lines}
 
-For EACH ticker above, search for news published in the LAST 7 DAYS using
+For EACH Symbol above, search for news published in the LAST 7 DAYS using
 queries of the form:
-  "{'{ticker}'} NSE news site:economictimes.com OR site:moneycontrol.com OR site:bseindia.com"
+  "{'{symbol}'} NSE news site:economictimes.com OR site:moneycontrol.com OR site:bseindia.com"
 
 For each story found, output a block in this EXACT format:
 
-TICKER: {{ticker}}
+SYMBOL: {{symbol}}
 HEADLINE: {{headline}}
 SOURCE: {{source name}}
 DATE: {{publication date}}
@@ -156,21 +149,21 @@ RAW_URL: {{url if available}}
 Rules:
 • Include ALL material stories, not just negative ones.
 • If no news found in 7 days, output:
-    TICKER: {{ticker}}
+    SYMBOL: {{symbol}}
     HEADLINE: No material news in past 7 days
     SENTIMENT: NEUTRAL
     PRICE_IMPACT_ESTIMATE: NEGLIGIBLE
     ---
 • Do NOT hallucinate headlines. If you are not certain a story is real,
   skip it and note "Skipped: could not verify."
-• Search separately for each ticker – do not batch them into one query.
+• Search separately for each symbol – do not batch them into one query.
 
-Tickers to scan: {ticker_csv}
+Symbols to scan: {symbol_csv}
 """,
         agent=news_scanner,
         expected_output=(
-            "One structured TICKER / HEADLINE / SUMMARY / SENTIMENT / "
-            "PRICE_IMPACT_ESTIMATE block per story per ticker, separated by '---'."
+            "One structured SYMBOL / HEADLINE / SUMMARY / SENTIMENT / "
+            "PRICE_IMPACT_ESTIMATE block per story per symbol, separated by '---'."
         ),
     )
 
@@ -202,7 +195,7 @@ Tickers to scan: {ticker_csv}
     task_classify = Task(
         description=f"""
 You will receive a structured news digest for the investor's held positions.
-Your job is to classify each ticker and produce an actionable alert report.
+Your job is to classify each symbol and produce an actionable alert report.
 
 ═══════════════════════════════════════════════════════
 HELD POSITIONS (reference for context)
@@ -248,11 +241,11 @@ When you are uncertain between YELLOW and RED, default to RED.
 Capital protection takes priority over avoiding a missed gain.
 
 ═══════════════════════════════════════════════════════
-REQUIRED OUTPUT FORMAT (produce this for each ticker)
+REQUIRED OUTPUT FORMAT (produce this for each symbol)
 ═══════════════════════════════════════════════════════
 
 ════════════════════════════════════════
-TICKER     : {{ticker}}
+SYMBOL     : {{symbol}}
 ALERT      : 🔴 RED | 🟡 YELLOW | 🟢 GREEN
 CONFIDENCE : HIGH | MEDIUM | LOW
 ════════════════════════════════════════
@@ -275,12 +268,12 @@ RISK FLAGS (list up to 3, or "None"):
 ════════════════════════════════════════
 
 ═══════════════════════════════════════════════════════
-PORTFOLIO-LEVEL ALERT SUMMARY (after all tickers)
+PORTFOLIO-LEVEL ALERT SUMMARY (after all symbols)
 ═══════════════════════════════════════════════════════
 • Total RED alerts    : N
 • Total YELLOW alerts : N
 • Total GREEN signals : N
-• Immediate actions required: (list tickers needing action)
+• Immediate actions required: (list symbols needing action)
 • Overall portfolio risk posture: LOW | MODERATE | HIGH | CRITICAL
 
 End with a 2-sentence narrative on the overall portfolio health.
@@ -288,7 +281,7 @@ End with a 2-sentence narrative on the overall portfolio health.
         agent=alert_classifier,
         context=[task_news],
         expected_output=(
-            "Per-ticker alert blocks (TICKER / ALERT / CONFIDENCE / TRIGGER SUMMARY "
+            "Per-symbol alert blocks (symbol / ALERT / CONFIDENCE / TRIGGER SUMMARY "
             "/ NEWS STORIES / RECOMMENDED ACTION / RISK FLAGS) followed by a "
             "portfolio-level summary table."
         ),
@@ -309,7 +302,7 @@ def run_monitor(held: list[dict[str, Any]]) -> str:
     ----------
     held : list of dicts
         Each dict must have:
-          ticker     : str  – e.g. "RELIANCE.NS"
+          symbol     : str  – e.g. "RELIANCE.NS"
           buy_price  : float – your average cost price in INR
           qty        : int   – number of shares held
 
@@ -347,12 +340,12 @@ def run_monitor(held: list[dict[str, Any]]) -> str:
 if __name__ == "__main__":
     # ── Replace with your actual positions ───────────────────────────────
     my_portfolio = [
-        {"ticker": "RELIANCE.NS",  "buy_price": 2850.0, "qty": 50},
-        {"ticker": "INFY.NS",      "buy_price": 1540.0, "qty": 100},
-        {"ticker": "HDFCBANK.NS",  "buy_price": 1620.0, "qty": 80},
-        {"ticker": "TATAMOTORS.NS","buy_price":  960.0, "qty": 120},
-        {"ticker": "ADANIENT.NS",  "buy_price": 2700.0, "qty": 30},
+        {"symbol": "RELIANCE.NS",  "buy_price": 2850.0, "qty": 50},
+        {"symbol": "INFY.NS",      "buy_price": 1540.0, "qty": 100},
+        {"symbol": "HDFCBANK.NS",  "buy_price": 1620.0, "qty": 80},
+        {"symbol": "TATAMOTORS.NS","buy_price":  960.0, "qty": 120},
+        {"symbol": "ADANIENT.NS",  "buy_price": 2700.0, "qty": 30},
     ]
 
     report = run_monitor(my_portfolio)
-    print(report)
+    log.info(report)

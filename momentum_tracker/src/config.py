@@ -36,6 +36,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         },
         "INDEX_BENCHMARK": "^NSEI",
         "SYMBOL_FILE_MAP": {
+            "Nifty50":     "ind_nifty50list.csv",
             "Nifty100":    "ind_nifty100list.csv",
             "Midcap150":   "ind_niftymidcap150list.csv",
             "Smallcap250": "ind_niftysmallcap250list.csv",

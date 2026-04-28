@@ -34,6 +34,8 @@ from typing import Any, Type
 from crewai.tools import BaseTool
 from pydantic import Field
 from pydantic import BaseModel, Field
+from logger import get_logger
+log = get_logger(__name__)
 
 # 1. Define the schema explicitly
 class MomentumToolInput(BaseModel):
@@ -107,6 +109,9 @@ class MomentumBackboneTool(BaseTool):
             
             if top_results.empty:
                 return f"No stocks found for category '{category}' that pass filters."
+            # import pandas as pd
+            # log.info("Columns available:", top_results.columns.tolist())
+            # log.info(top_results[["Symbol","RSI_Raw","MFI_Raw","CCI_Raw"]].head(3))
 
             # ── Format output ──────────────────────────────────────────
             return self._format_output(
@@ -246,7 +251,7 @@ class MomentumBackboneTool(BaseTool):
         # ── Ranked table ───────────────────────────────────────────────
         header = (
             f"{'Rank':<5} {'Symbol':<18} {'WMS':>6} "
-            f"{'RS':>7} {'RSI':>6} {'MFI':>6} {'CCI':>7}"
+            f"{'RS':>6} {'RSI':>6} {'MFI':>6} {'CCI':>6}"
         )
         sep = "─" * len(header)
 
@@ -262,7 +267,7 @@ class MomentumBackboneTool(BaseTool):
 
             rows.append(
                 f"{rank:<5} {sym:<18} {wms:>6.2f} "
-                f"{rs:>7.3f} {rsi:>6.1f} {mfi:>6.1f} {cci:>7.1f}"
+                f"{rs:>6.3f} {rsi:>6.1f} {mfi:>6.1f} {cci:>6.1f}"
             )
             tickers.append(sym)
 

@@ -18,3 +18,5 @@ __pycache__/
 # Ignore virtual environments (Standard practice)
 venv/
 .venv/
+.env
+.venv
