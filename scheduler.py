@@ -48,8 +48,8 @@ Usage
 from __future__ import annotations
 
 import argparse
-import logging
-import sys
+# import logging
+# import sys
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -58,33 +58,17 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 # ── All crew logic lives in these two files ────────────────────────────────
-from discovery_crew import build_crew              # discovery pipeline
+from stock_discovery_agents import run_momentun_discovery  # discovery pipeline
 from portfolio_monitor import run_monitor          # alert pipeline
-from persistence import DB                         # save to SQLite
+from db_config import get_db
 from utils import normalise_ticker as _normalise  # normalise symbol-field aliases in monitor output
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Logging
-# ─────────────────────────────────────────────────────────────────────────────
-
-# _LOG_FILE = Path(__file__).parent / "momentum_tracker" / "mps_cache" / "scheduler.log"
-# _LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format="%(asctime)s  %(levelname)-8s  %(message)s",
-#     datefmt="%Y-%m-%d %H:%M:%S",
-#     handlers=[
-#         logging.StreamHandler(open(sys.stdout.fileno(), mode='w', encoding='utf-8', closefd=False)),
-#         logging.FileHandler(_LOG_FILE),
-#     ],
-# )
-# log = logging.getLogger("scheduler")
+from utils import clean_text                         # remove emojis and clean whitespace in monitor output
 
 IST = ZoneInfo("Asia/Kolkata")
 from logger import get_logger
 log = get_logger("scheduler")
 
+DB = get_db()
 # ─────────────────────────────────────────────────────────────────────────────
 # Job 1 – Scan + classify  (delegates entirely to main.py)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -96,14 +80,11 @@ def job_scan_and_classify(category: str = "Nifty100"):
     """
     log.info("=== JOB 1: Momentum scan + classification (via main.py) ===")
     try:
-        crew   = build_crew(category=category, top_n=20, use_memory=False)
-        result = crew.kickoff()
+        result = run_momentun_discovery(category=category, use_memory=False)
 
         # Save raw scan rows and analyst picks to SQLite
         scout_text   = result.tasks_output[0].raw   # WMS table lives here
         analyst_text = result.tasks_output[1].raw   # BUY/HOLD/AVOID blocks live here
-
-        # log.info("Scout preview:\n%s", scout_text[:300].encode('ascii', 'replace').decode())
 
         scan_rows = _parse_scan_rows(scout_text)
         picks     = _parse_picks(analyst_text)
@@ -116,12 +97,6 @@ def job_scan_and_classify(category: str = "Nifty100"):
         DB.save_picks(run_id, picks)
         DB.save_scan_report(run_id, category, scout_text, analyst_text, report_type="SCOUT")        
         
-        # REPLACE both preview logs with
-        # log.info("Scout preview:\n%s", scout_text[:300].encode('ascii', 'replace').decode())
-        # log.info("Analyst preview:\n%s", analyst_text[:500].encode('ascii', 'replace').decode())
-
-        # log.info("Scout output preview:\n%s", scout_text[:300])
-        # log.info("Sample row: %s", scan_rows[0] if scan_rows else "EMPTY")
         log.info("Job 1 complete – run_id=%d, %d stocks, %d picks saved",
                 run_id, len(scan_rows), len(picks))
 
@@ -156,15 +131,16 @@ def job_monitor():
         if alerts:
             DB.save_alerts(alerts)
             
-        # Save the raw report ALWAYS — even if all are GREEN
-        DB.save_scan_report(
-            run_id=0,              # no scan run linked — monitor is independent
-            category="Monitor",   # distinguishes from discovery scans in the UI
-            scout_raw="",         # monitor has no WMS table
-            analyst_raw=report,   # full monitor report text
-            report_type="MONITOR"
-        )
-        log.info("Monitor report saved to scan_reports.")
+        # # Save the raw report ALWAYS — even if all are GREEN
+        # DB.save_scan_report(
+        #     run_id=0,              # no scan run linked — monitor is independent
+        #     category="Monitor",   # distinguishes from discovery scans in the UI
+        #     scout_raw="",         # monitor has no WMS table
+        #     analyst_raw=report,   # full monitor report text
+        #     report_type="MONITOR"
+        # )
+        
+        # log.info("Monitor report saved to scan_reports.")
 
         red = [a for a in alerts if a["alert_level"] == "RED"]
         if red:
@@ -243,72 +219,69 @@ def _parse_picks(text: str) -> list[dict]:
         picks.append(current)
     return picks
 
-def _parse_alerts_old(text: str) -> list[dict]:
-    """Extract alert records from the monitor report."""
-    alerts: list[dict] = []
-    current: dict      = {}
-
-    for line in text.splitlines():
-        line = line.strip()
-        if line.startswith("TICKER"):
-            if current.get("symbol"):
-                alerts.append(current)
-            current = {"symbol": line.split(":", 1)[1].strip().split()[0]}
-        elif line.startswith("ALERT"):
-            raw = line.split(":", 1)[1].strip()
-            for level in ("RED", "YELLOW", "GREEN"):
-                if level in raw:
-                    current["alert_level"] = level
-                    break
-        elif line.startswith("TRIGGER SUMMARY"):
-            current["trigger"] = line.split(":", 1)[1].strip()
-        elif line.startswith("RECOMMENDED ACTION"):
-            current["action"] = line.split(":", 1)[1].strip()
-        elif line.startswith("RISK FLAGS"):
-            current["risk_flags"] = line.split(":", 1)[1].strip()
-        elif line.startswith("=" * 10) and current.get("symbol"):
-            alerts.append(current)
-            current = {}
-
-    if current.get("symbol") and current.get("alert_level"):
-        alerts.append(current)
-    return alerts
-
 def _parse_alerts(text: str) -> list[dict]:
     alerts: list[dict] = []
     current: dict = {}
+    active_key = None  # Tracks the field we are currently appending to
+
+    # Mapping logic for headers
+    # We use a dictionary to easily identify which header is being read
+    field_map = {
+        "SYMBOL": "symbol",
+        "ALERT": "alert_level",
+        "CONFIDENCE": "confidence",
+        "TRIGGER SUMMARY": "trigger",
+        "RECOMMENDED ACTION": "action",
+        "RISK FLAGS": "risk_flags",
+        "NEWS STORIES CONSIDERED": "raw_news",
+    }
 
     for line in text.splitlines():
-        line = line.strip()
+        # 1. Clean line
+        clean_line = line.replace("|", "").replace("═", "").strip()
+        if not clean_line:
+            continue
 
-        # Normalise: treat TICKER as an alias for SYMBOL
-        normalised = _normalise(line.strip())
+        # 2. Check if this line is a Header
+        # We normalise the line to handle aliases, then check if it starts with one of our known keys
+        norm_line = _normalise(clean_line).upper()
+        
+        found_header = None
+        for header, key in field_map.items():
+            if norm_line.startswith(header):
+                found_header = key
+                break
+        
+        if found_header:
+            active_key = found_header
+            # If the header contains the value on the same line (e.g. "SYMBOL: INFY.NS")
+            if ":" in clean_line:
+                val = clean_line.split(":", 1)[1].strip()
+                
+                # Special handling for ALERT: clean the emoji immediately
+                if active_key == "alert_level":
+                    val = clean_text(val)
+                
+                # If we encounter a new SYMBOL header, save the previous record
+                if active_key == "symbol" and "symbol" in current:
+                    alerts.append(current)
+                    current = {}
+                
+                current[active_key] = val
+            
+            # If header is on its own line (e.g. "TRIGGER SUMMARY:"), 
+            # we just initialized the active_key, so we wait for content on the next iteration
+            continue
 
-        if normalised.startswith("SYMBOL") and ":" in normalised:
-            if current.get("symbol") and current.get("alert_level"):
-                alerts.append(current)
-            val = normalised.split(":", 1)[1].strip()
-            current = {"symbol": val}
+        # 3. Accumulate content if not a header
+        elif active_key and active_key in current:
+            # Append multi-line content to the existing value
+            current[active_key] += f" {clean_line}"
+        elif active_key:
+            # First line of content for a header that didn't have value on same line
+            current[active_key] = clean_line
 
-        elif normalised.startswith("ALERT") and ":" in normalised:
-            raw = normalised.split(":", 1)[1].strip()
-            for level in ("RED", "YELLOW", "GREEN"):
-                if level in raw.upper():
-                    current["alert_level"] = level
-                    break
-
-        elif normalised.startswith("CONFIDENCE") and ":" in normalised:
-            current["confidence"] = normalised.split(":", 1)[1].strip()
-
-        elif normalised.startswith("TRIGGER SUMMARY") and ":" in normalised:
-            current["trigger"] = normalised.split(":", 1)[1].strip()
-
-        elif normalised.startswith("RECOMMENDED ACTION") and ":" in normalised:
-            current["action"] = normalised.split(":", 1)[1].strip()
-
-        elif normalised.startswith("RISK FLAGS") and ":" in normalised:
-            current["risk_flags"] = normalised.split(":", 1)[1].strip()
-
+    # Append the final record
     if current.get("symbol") and current.get("alert_level"):
         alerts.append(current)
 

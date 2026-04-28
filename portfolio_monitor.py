@@ -57,13 +57,12 @@ from logger import get_logger
 log = get_logger(__name__)
 
 # ─────────────────────────────────────────────────────────────────────────────
-
 # Task factory (created fresh per run so held positions are injected)
 # Agents are also created here — NOT at module level — so the LLM is only
 # initialised when run_monitor() is actually called, not on every import.
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _build_tasks(held: list[dict]) -> tuple[Task, Task]:
+def _build_agent_and_tasks(held: list[dict]) -> tuple[Task, Task]:
     """
     Build the two monitoring tasks from the current held-positions list.
 
@@ -78,6 +77,7 @@ def _build_tasks(held: list[dict]) -> tuple[Task, Task]:
     )
     symbol_csv = ", ".join(h["symbol"] for h in held)
     as_of      = datetime.now().strftime("%Y-%m-%d %H:%M IST")
+
     # ── Agents (created here so LLM init happens only when called) ────────────
     llm_scanner    = LLMConfig.get_llm(role="scanner")
     llm_classifier = LLMConfig.get_llm(role="analyst")
@@ -120,8 +120,6 @@ def _build_tasks(held: list[dict]) -> tuple[Task, Task]:
         llm=llm_classifier,
         verbose=True,
     )
-
-
 
     # ── Task 1: News collection ────────────────────────────────────────────
     task_news = Task(
@@ -287,8 +285,9 @@ End with a 2-sentence narrative on the overall portfolio health.
         ),
     )
 
-    return task_news, task_classify
-
+    # return task_news, task_classify
+    # RETURN THE AGENTS AND TASKS
+    return news_scanner, alert_classifier, task_news, task_classify
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Public entry point
@@ -314,7 +313,7 @@ def run_monitor(held: list[dict[str, Any]]) -> str:
     if not held:
         return "No held positions provided."
 
-    task_news, task_classify = _build_tasks(held)
+    news_scanner, alert_classifier, task_news, task_classify = _build_agent_and_tasks(held)
 
     monitor_crew = Crew(
         agents=[news_scanner, alert_classifier],

@@ -597,21 +597,21 @@ class PostgreSQLDatabase(DatabaseInterface):
 
         return (f"SYMBOL: {symbol}" + match.group(1).strip()) if match else None
 
-    def get_stock_monitor_report(self, symbol: str) -> str | None:
-        """Extract the monitor alert block for a specific stock from the latest Monitor report."""
-        with self._conn() as con:
-            cur = con.cursor()
-            cur.execute(
-                "SELECT analyst_raw FROM scan_reports WHERE category = 'Monitor' "
-                "ORDER BY created_at DESC LIMIT 1",
-            )
-            row = cur.fetchone()
+    # def get_stock_monitor_report(self, symbol: str) -> str | None:
+    #     """Extract the monitor alert block for a specific stock from the latest Monitor report."""
+    #     with self._conn() as con:
+    #         cur = con.cursor()
+    #         cur.execute(
+    #             "SELECT analyst_raw FROM scan_reports WHERE category = 'Monitor' "
+    #             "ORDER BY created_at DESC LIMIT 1",
+    #         )
+    #         row = cur.fetchone()
 
-        if not row or not row["analyst_raw"]:
-            return None
+    #     if not row or not row["analyst_raw"]:
+    #         return None
 
-        text    = row["analyst_raw"]
-        pattern = rf"(?:SYMBOL|TICKER)\s*:\s*{re.escape(symbol)}\b(.*?)(?=(?:SYMBOL|TICKER)\s*:|$)"
-        match   = re.search(pattern, text, re.DOTALL | re.IGNORECASE)
+    #     text    = row["analyst_raw"]
+    #     pattern = rf"(?:SYMBOL|TICKER)\s*:\s*{re.escape(symbol)}\b(.*?)(?=(?:SYMBOL|TICKER)\s*:|$)"
+    #     match   = re.search(pattern, text, re.DOTALL | re.IGNORECASE)
 
-        return (f"SYMBOL: {symbol}" + match.group(1).strip()) if match else None
+    #     return (f"SYMBOL: {symbol}" + match.group(1).strip()) if match else None

@@ -585,25 +585,53 @@ def get_stock_analyst_report(symbol: str, category: str = "Nifty100") -> str | N
     return (f"SYMBOL: {symbol}" + match.group(1).strip()) if match else None
 
 
-def get_stock_monitor_report(symbol: str) -> str | None:
-    """Extract the monitor alert block for a specific stock from the latest Monitor report."""
-    with _conn() as con:
-        row = con.execute(
-            "SELECT analyst_raw FROM scan_reports WHERE category='Monitor' "
-            "ORDER BY created_at DESC LIMIT 1",
-        ).fetchone()
+# def get_stock_monitor_report(symbol: str) -> str | None:
+#     """Extract the monitor alert block for a specific stock from the latest Monitor report."""
+#     with _conn() as con:
+#         row = con.execute(
+#             "SELECT analyst_raw FROM scan_reports WHERE category='Monitor' "
+#             "ORDER BY created_at DESC LIMIT 1",
+#         ).fetchone()
 
-    if not row or not row["analyst_raw"]:
-        return None
+#     if not row or not row["analyst_raw"]:
+#         return None
 
-    text    = row["analyst_raw"]
-    # Handles both SYMBOL and TICKER — LLM uses either interchangeably
-    pattern = rf"(?:SYMBOL|TICKER)\s*:\s*{re.escape(symbol)}\b(.*?)(?=(?:SYMBOL|TICKER)\s*:|$)"
-    match   = re.search(pattern, text, re.DOTALL | re.IGNORECASE)
+#     text    = row["analyst_raw"]
+#     # Handles both SYMBOL and TICKER — LLM uses either interchangeably
+#     pattern = rf"(?:SYMBOL|TICKER)\s*:\s*{re.escape(symbol)}\b(.*?)(?=(?:SYMBOL|TICKER)\s*:|$)"
+#     match   = re.search(pattern, text, re.DOTALL | re.IGNORECASE)
 
-    return (f"SYMBOL: {symbol}" + match.group(1).strip()) if match else None
+#     return (f"SYMBOL: {symbol}" + match.group(1).strip()) if match else None
 
+# def save_monitor_report(self, alert_data: dict, raw_text: str):
+#     with self._conn() as con:
+#         con.execute(
+#             """INSERT INTO monitor_reports 
+#                 (symbol, alert_level, confidence, trigger, action, risk_flags, raw_text, created_at) 
+#                 VALUES (?,?,?,?,?,?,?,?)""",
+#             (
+#                 alert_data.get("symbol"),
+#                 alert_data.get("alert_level"),
+#                 alert_data.get("confidence"),
+#                 alert_data.get("trigger"),
+#                 alert_data.get("action"),
+#                 alert_data.get("risk_flags"),
+#                 raw_text,
+#                 datetime.now()
+#             )
+#         )
 
+# def delete_old_monitor_reports(days_old: int = 30):
+#     """Cleanup utility to keep your database lean."""
+#     conn = get_db_connection()
+#     try:
+#         threshold_date = datetime.datetime.now() - datetime.timedelta(days=days_old)
+#         conn.execute("DELETE FROM monitor_reports WHERE created_at < ?", (threshold_date,))
+#         conn.commit()
+#     finally:
+#         conn.close()
+        
+        
 # ─────────────────────────────────────────────────────────────────────────────
 # SQLiteDatabase  –  DatabaseInterface implementation
 # ─────────────────────────────────────────────────────────────────────────────
@@ -674,8 +702,8 @@ class SQLiteDatabase(DatabaseInterface):
     def get_stock_analyst_report(self, symbol, category="Nifty100"):
         return get_stock_analyst_report(symbol, category)
 
-    def get_stock_monitor_report(self, symbol):
-        return get_stock_monitor_report(symbol)
+    # def get_stock_monitor_report(self, symbol):
+    #     return get_stock_monitor_report(symbol)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

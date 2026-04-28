@@ -40,27 +40,15 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from persistence import DB
+from db_config import get_db
 
 import logging
 from pathlib import Path
 
-# _LOG_FILE = Path(__file__).parent / "momentum_tracker" / "mps_cache" / "dashboard.log"
-# _LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format="%(asctime)s  %(levelname)-8s  %(message)s",
-#     datefmt="%Y-%m-%d %H:%M:%S",
-#     handlers=[
-#         logging.FileHandler(_LOG_FILE, encoding="utf-8"),   # saves to file
-#         # logging.StreamHandler(),                             # also prints to terminal
-#         logging.StreamHandler(open(sys.stdout.fileno(), mode='w', encoding='utf-8', closefd=False)),
-#     ],
-# )
-# dash_log = logging.getLogger("dashboard")
 from logger import get_logger, get_log_file
 dash_log = get_logger("dashboard")
+
+DB = get_db()
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Page config
@@ -133,15 +121,19 @@ if st.sidebar.button("Run portfolio monitor now"):
 # Helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
+from utils import clean_text  
+
 ALERT_COLORS = {"RED": "🔴", "YELLOW": "🟡", "GREEN": "🟢"}
 PICK_COLORS  = {"BUY": "🟢", "HOLD": "🟡", "AVOID": "🔴"}
 
 
 def _alert_badge(level: str) -> str:
+    level = clean_text(level)
     return f"{ALERT_COLORS.get(level, '⚪')} {level}"
 
 
 def _pick_badge(cls: str) -> str:
+    cls = clean_text(cls)
     return f"{PICK_COLORS.get(cls, '⚪')} {cls}"
 
 
@@ -196,82 +188,129 @@ if page == "Portfolio Overview":
                 c1.metric("Buy price", f"₹{pos['buy_price']:.2f}")
                 c2.metric("Qty", pos["qty"])
                 c3.metric("Added", pos["added_at"][:10])
-
-                # Latest picks history
-                picks = DB.recent_picks(sym, n=5)
-                if picks:
-                    st.caption("Last 5 analyst calls")
-                    for p in picks:
+                
+                # Fetch the most recent alert from the structured table
+                latest_alerts = DB.alert_history(symbol=sym, n=5)
+                if latest_alerts:
+                    st.caption("Last 5 Monitor alerts")
+                    for p in latest_alerts:
                         st.write(
-                            f"**{p['picked_at'][:10]}**  "
-                            f"{_pick_badge(p['classification'])}  "
-                            f"Conf {p['confidence']}/5  ·  {p['rationale'] or '–'}"
+                            f"**{p['alerted_at'][:10]}**  "
+                            f"{_alert_badge(p['alert_level'])}  "
+                            f": Conf - {p['confidence']}/5  · News - {p['raw_news'] or '–'}"
                         )
-                # ADD THIS BLOCK — full analyst report for this stock
-                st.divider()
-                st.caption("Latest analyst report")
-                analyst_report = DB.get_stock_analyst_report(sym)
-                if analyst_report:
-                    # Parse into labelled fields for clean display
-                    field_colors = {
-                        "CLASSIFICATION": {"BUY": "green", "HOLD": "orange", "AVOID": "red"},
-                    }
-                    for line in analyst_report.splitlines():
-                        if not line.strip():
-                            continue
-                        if ":" in line:
-                            label, _, value = line.partition(":")
-                            label = label.strip()
-                            value = value.strip()
-                            if label == "CLASSIFICATION":
-                                color = field_colors["CLASSIFICATION"].get(value, "gray")
-                                st.markdown(f"**{label}:** :{color}[**{value}**]")
-                            elif label == "SYMBOL":
-                                pass   # already shown in expander header
-                            elif label in ("CONFIDENCE", "MOMENTUM QUALITY",
-                                        "RISK FLAGS", "ONE-LINE RATIONALE"):
-                                st.markdown(f"**{label}:** {value}")
-                            else:
-                                # Multi-line fields — show as caption
-                                st.markdown(f"**{label}:**")
-                                st.caption(value)
-                        else:
-                            st.caption(line)
-                else:
-                    st.caption("No analyst report found — run a scan first.")
+
+                # # Latest picks history
+                # picks = DB.recent_picks(sym, n=5)
+                # if picks:
+                #     st.caption("Last 5 analyst calls")
+                #     for p in picks:
+                #         st.write(
+                #             f"**{p['picked_at'][:10]}**  "
+                #             f"{_pick_badge(p['classification'])}  "
+                #             f"Conf {p['confidence']}/5  ·  {p['rationale'] or '–'}"
+                #         )
+                # # ADD THIS BLOCK — full analyst report for this stock
+                # st.divider()
+                # st.caption("Latest analyst report")
+                # analyst_report = DB.get_stock_analyst_report(sym)
+                # if analyst_report:
+                #     # Parse into labelled fields for clean display
+                #     field_colors = {
+                #         "CLASSIFICATION": {"BUY": "green", "HOLD": "orange", "AVOID": "red"},
+                #     }
+                #     for line in analyst_report.splitlines():
+                #         if not line.strip():
+                #             continue
+                #         if ":" in line:
+                #             label, _, value = line.partition(":")
+                #             label = label.strip()
+                #             value = value.strip()
+                #             if label == "CLASSIFICATION":
+                #                 color = field_colors["CLASSIFICATION"].get(value, "gray")
+                #                 st.markdown(f"**{label}:** :{color}[**{value}**]")
+                #             elif label == "SYMBOL":
+                #                 pass   # already shown in expander header
+                #             elif label in ("CONFIDENCE", "MOMENTUM QUALITY",
+                #                         "RISK FLAGS", "ONE-LINE RATIONALE"):
+                #                 st.markdown(f"**{label}:** {value}")
+                #             else:
+                #                 # Multi-line fields — show as caption
+                #                 st.markdown(f"**{label}:**")
+                #                 st.caption(value)
+                #         else:
+                #             st.caption(line)
+                # else:
+                #     st.caption("No analyst report found — run a scan first.")
                     
                 # ADD after the analyst report block
+                # st.divider()
+                # st.caption("Latest monitor alert")
+                # monitor_report = DB.get_stock_monitor_report(sym)
+                # if monitor_report:
+                #     for line in monitor_report.splitlines():
+                #         line = line.strip()
+                #         if not line or line.startswith("═"):
+                #             continue
+                #         if line.startswith("ALERT"):
+                #             level_val = line.split(":", 1)[1].strip()
+                #             if "RED"    in level_val: st.error(f"🔴 {level_val}")
+                #             elif "YELLOW" in level_val: st.warning(f"🟡 {level_val}")
+                #             elif "GREEN"  in level_val: st.success(f"🟢 {level_val}")
+                #         elif line.startswith("TRIGGER SUMMARY"):
+                #             st.markdown(f"**Trigger:**")
+                #         elif line.startswith("RECOMMENDED ACTION"):
+                #             st.markdown(f"**Action:**")
+                #         elif line.startswith("NEWS STORIES"):
+                #             st.markdown(f"**News considered:**")
+                #         elif line.startswith("RISK FLAGS"):
+                #             val = line.split(":", 1)[1].strip()
+                #             st.markdown(f"**Risk flags:** {val}")
+                #         elif line.startswith("CONFIDENCE"):
+                #             val = line.split(":", 1)[1].strip()
+                #             st.markdown(f"**Confidence:** {val}")
+                #         elif line.startswith("TICKER") or line.startswith("═"):
+                #             pass
+                #         else:
+                #             st.caption(line)
+                # else:
+                #     st.caption("No monitor report yet — run portfolio monitor first.")
+                    
+                # --- REPLACE THE "Latest monitor alert" BLOCK WITH THIS ---
                 st.divider()
                 st.caption("Latest monitor alert")
-                monitor_report = DB.get_stock_monitor_report(sym)
-                if monitor_report:
-                    for line in monitor_report.splitlines():
-                        line = line.strip()
-                        if not line or line.startswith("═"):
-                            continue
-                        if line.startswith("ALERT"):
-                            level_val = line.split(":", 1)[1].strip()
-                            if "RED"    in level_val: st.error(f"🔴 {level_val}")
-                            elif "YELLOW" in level_val: st.warning(f"🟡 {level_val}")
-                            elif "GREEN"  in level_val: st.success(f"🟢 {level_val}")
-                        elif line.startswith("TRIGGER SUMMARY"):
-                            st.markdown(f"**Trigger:**")
-                        elif line.startswith("RECOMMENDED ACTION"):
-                            st.markdown(f"**Action:**")
-                        elif line.startswith("NEWS STORIES"):
-                            st.markdown(f"**News considered:**")
-                        elif line.startswith("RISK FLAGS"):
-                            val = line.split(":", 1)[1].strip()
-                            st.markdown(f"**Risk flags:** {val}")
-                        elif line.startswith("CONFIDENCE"):
-                            val = line.split(":", 1)[1].strip()
-                            st.markdown(f"**Confidence:** {val}")
-                        elif line.startswith("TICKER") or line.startswith("═"):
-                            pass
-                        else:
-                            st.caption(line)
+
+                # Fetch the most recent alert from the structured table
+                latest_alerts = DB.alert_history(symbol=sym, n=1)
+
+                if latest_alerts:
+                    a = latest_alerts[0]
+                    
+                    # 1. Alert Level Badge
+                    level = a.get("alert_level", "UNKNOWN")
+                    level = clean_text(level)
+                    if level == "RED":
+                        st.error("🔴 RED ALERT")
+                    elif level == "YELLOW":
+                        st.warning("🟡 YELLOW ALERT")
+                    elif level == "GREEN":
+                        st.success("🟢 GREEN ALERT")
+                    else:
+                        st.info(f"⚪ {level}")
+
+                    # 2. Display Structured Fields
+                    # Using a 2-column layout for compactness
+                    col_a, col_b = st.columns(2)
+                    col_a.markdown(f"**Confidence:** {a.get('confidence', 'N/A')}")
+                    col_b.markdown(f"**Alerted:** {a.get('alerted_at', 'N/A')[:16]}")
+                    
+                    st.markdown(f"**Trigger:** {a.get('trigger', 'N/A')}")
+                    st.markdown(f"**Action:** {a.get('action', 'N/A')}")
+                    st.markdown(f"**Risk Flags:** {a.get('risk_flags', 'N/A')}")
+
                 else:
-                    st.caption("No monitor report yet — run portfolio monitor first.")
+                    st.caption("No monitor alert found for this stock.")
+                # ---------------------------------------------------------
                     
                 st.divider()
                 # Close button

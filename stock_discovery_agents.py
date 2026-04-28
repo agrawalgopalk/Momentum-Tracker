@@ -24,7 +24,7 @@ from search_tool_setup import search_tool
 from logger import get_logger
 log = get_logger(__name__)
 
-def build_crew(category: str = "Nifty100", top_n: int = 20, use_memory: bool = False) -> Crew:
+def _build_agent_and_tasks(category: str = "Nifty100", top_n: int = 20) -> Crew:
     """
     Build and return a fully configured discovery Crew.
 
@@ -130,7 +130,21 @@ Close with a 3-5 sentence portfolio-level summary:
             "followed by a 3-5 sentence portfolio-level summary."
         ),
     )
+    
+    return {
+        "agents": [scout, analyst],
+        "tasks": [task_scan, task_analysis]
+    }
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# run_momentun_discory() is the public entry point for both scheduler.py and direct runs.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def run_momentun_discovery(category: str = "Nifty100", use_memory: bool = False) -> str:
+    
+    agent_n_task = _build_agent_and_tasks(category="Nifty100", top_n=20)
+    
     # ── Memory (optional) ─────────────────────────────────────────────────
     memory_kwargs = {}
     if use_memory:
@@ -153,27 +167,28 @@ Close with a 3-5 sentence portfolio-level summary:
         #     }
         # )
 
-    return Crew(
-        agents=[scout, analyst],
-        tasks=[task_scan, task_analysis],
+    crew = Crew(
+        agents=agent_n_task["agents"],
+        tasks=agent_n_task["tasks"],
         verbose=True,
         **memory_kwargs,
     )
+    
+    result = crew.kickoff()
+    return result
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Direct run (manual one-off, no scheduler needed)
-# ─────────────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     # Run directly for a one-off manual scan: python discovery_crew.py
     # Changed use_memory=True to False for the direct run because
     # when you're running manually to test, you don't want ChromaDB spinning up. 
     # The scheduler always passes use_memory=True explicitly anyway.
-    crew   = build_crew(category="Nifty100", top_n=20, use_memory=False)
-    result = crew.kickoff()
+    result = run_momentun_discovery(category="Nifty100", use_memory=False)
 
     log.info("\n" + "=" * 65)
     log.info("FINAL CREW OUTPUT")
     log.info("=" * 65)
     log.info(result)
+    
+    

@@ -18,3 +18,9 @@ def normalise_ticker(line: str) -> str:
     """Replace all symbol-field aliases with SYMBOL, preserving rest of line."""
     return _SYMBOL_ALIASES.sub("SYMBOL", line)
 
+# Helper to remove emojis and clean whitespace
+def clean_text(text: str) -> str:
+    # Remove emojis (🔴, 🟡, 🟢)
+    text = re.sub(r'[🔴🟡🟢]', '', text)
+    # Strip whitespace, quotes, and common arrows/delimiters that might linger
+    return text.replace("→", "").replace('"', '').strip()

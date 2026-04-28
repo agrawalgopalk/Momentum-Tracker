@@ -176,9 +176,9 @@ class DatabaseInterface(ABC):
         scan report for the given category.
         """
 
-    @abstractmethod
-    def get_stock_monitor_report(self, symbol: str) -> str | None:
-        """
-        Extract the monitor alert block for a specific stock from the
-        latest Monitor report.
-        """
+    # @abstractmethod
+    # def get_stock_monitor_report(self, symbol: str) -> str | None:
+    #     """
+    #     Extract the monitor alert block for a specific stock from the
+    #     latest Monitor report.
+    #     """
