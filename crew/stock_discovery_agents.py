@@ -13,15 +13,15 @@ from crewai import Agent, Task, Crew
 # from crewai import LongTermMemory, ShortTermMemory, EntityMemory
 from pathlib import Path
 
-from llm_config import LLMConfig
-from momentum_tool import MomentumBackboneTool
-from search_tool_setup import search_tool
+from .llm_config import LLMConfig
+from .momentum_tool import MomentumBackboneTool
+from .search_tool_setup import search_tool
 
 # _CHROMA_DIR = str(
 #     Path(__file__).resolve().parent / "momentum_tracker" / "mps_cache" / "chroma_db"
 # )
 
-from logger import get_logger
+from utils import get_logger
 log = get_logger(__name__)
 
 def _build_agent_and_tasks(category: str = "Nifty100", top_n: int = 20) -> Crew:
@@ -143,7 +143,7 @@ Close with a 3-5 sentence portfolio-level summary:
 
 def run_momentun_discovery(category: str = "Nifty100", use_memory: bool = False) -> str:
     
-    agent_n_task = _build_agent_and_tasks(category="Nifty100", top_n=20)
+    agent_n_task = _build_agent_and_tasks(category=category, top_n=20)
     
     # ── Memory (optional) ─────────────────────────────────────────────────
     memory_kwargs = {}

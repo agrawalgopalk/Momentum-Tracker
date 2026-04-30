@@ -49,11 +49,11 @@ from datetime import datetime
 from typing import Any
 
 from crewai import Agent, Crew, Task
-from search_tool_setup import search_tool  # no API key needed
+from .search_tool_setup import search_tool  # no API key needed
 
-from llm_config import LLMConfig
+from .llm_config import LLMConfig
 
-from logger import get_logger
+from utils import get_logger
 log = get_logger(__name__)
 
 # ─────────────────────────────────────────────────────────────────────────────

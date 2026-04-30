@@ -36,7 +36,13 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from db_interface import DatabaseInterface
+from .db_interface import DatabaseInterface
+
+# 1. Dynamically resolve the project root.
+# __file__ is the path to db_config.py (core/db_config.py)
+# .parent goes to 'core/'
+# .parent goes to 'Momentum-Tracker/' (The root)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -60,21 +66,28 @@ class DBConfig:
     # ── Provider selection ────────────────────────────────────────────────────
     DB_TYPE: str = os.getenv("DB_TYPE", "sqlite").lower()
     # Valid values: "sqlite" | "postgresql"
+    
+    # 2. Use the PROJECT_ROOT to anchor your database path
+    # This ensures that no matter where you execute the code from,
+    # it always resolves to: root/momentum_tracker/mps_cache/momentum.db
+    DEFAULT_SQLITE_PATH = PROJECT_ROOT / "data_cache" / "momentum.db"
+    
+    SQLITE_PATH = os.getenv("SQLITE_PATH", DEFAULT_SQLITE_PATH)
 
-    # ── SQLite settings ───────────────────────────────────────────────────────
-    # Default path mirrors the existing persistence.py behaviour.
-    # Override with SQLITE_PATH env var if needed.
-    SQLITE_PATH: Path = Path(
-        os.getenv(
-            "SQLITE_PATH",
-            str(
-                Path(__file__).resolve().parent
-                / "momentum_tracker"
-                / "mps_cache"
-                / "momentum.db"
-            ),
-        )
-    )
+    # # ── SQLite settings ───────────────────────────────────────────────────────
+    # # Default path mirrors the existing persistence.py behaviour.
+    # # Override with SQLITE_PATH env var if needed.
+    # SQLITE_PATH: Path = Path(
+    #     os.getenv(
+    #         "SQLITE_PATH",
+    #         str(
+    #             Path(__file__).resolve().parent
+    #             / "momentum_tracker"
+    #             / "mps_cache"
+    #             / "momentum.db"
+    #         ),
+    #     )
+    # )
 
     # ── PostgreSQL settings ───────────────────────────────────────────────────
     # Render / Railway / Heroku set DATABASE_URL automatically.
@@ -129,13 +142,13 @@ def get_db() -> DatabaseInterface:
     db_type = DBConfig.DB_TYPE
 
     if db_type == "postgresql":
-        from persistence_postgresql import PostgreSQLDatabase
+        from .persistence_postgresql import PostgreSQLDatabase
         db = PostgreSQLDatabase(DBConfig)
         db.init()
         return db
 
     if db_type == "sqlite":
-        from persistence import SQLiteDatabase
+        from .persistence import SQLiteDatabase
         db = SQLiteDatabase(DBConfig)
         db.init()
         return db

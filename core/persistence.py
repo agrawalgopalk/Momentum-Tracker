@@ -75,12 +75,15 @@ from pathlib import Path
 from typing import Any
 from utils import normalise_ticker as _normalise  # normalise symbol-field aliases in monitor output
 
+
+from .db_config import DBConfig
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Config
 # ─────────────────────────────────────────────────────────────────────────────
 
-DB_PATH = Path(__file__).resolve().parent / "momentum_tracker" / "mps_cache" / "momentum.db"
-DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+# DB_PATH = Path(__file__).resolve().parent / "momentum_tracker" / "mps_cache" / "momentum.db"
+# DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -89,7 +92,15 @@ DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 @contextmanager
 def _conn():
-    con = sqlite3.connect(DB_PATH, detect_types=sqlite3.PARSE_DECLTYPES)
+    # 1. Ensure the directory exists before connecting
+    db_path = Path(DBConfig.SQLITE_PATH)
+    
+    # 2. Safety Check: Ensure the directory exists before attempting to connect
+    # This prevents the OperationalError if the folder is missing
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    # print(f"Connecting to SQLite database at: {db_path}")  # Debug log to confirm path
+    
+    con = sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA journal_mode=WAL")   # safe concurrent reads
     con.execute("PRAGMA foreign_keys=ON")
@@ -202,6 +213,9 @@ CREATE INDEX IF NOT EXISTS idx_alerts_level  ON alerts(alert_level);
 """
 
 def init_db() -> None:
+    
+
+        
     with _conn() as con:
         con.executescript(_SCHEMA)
         _migrate(con)
@@ -631,12 +645,59 @@ def get_stock_analyst_report(symbol: str, category: str = "Nifty100") -> str | N
 #     finally:
 #         conn.close()
         
+# ─────────────────────────────────────────────────────────────────────────────
+# SQLiteDatabase  –  Delete related API
+# ─────────────────────────────────────────────────────────────────────────────
+
+def closed_positions() -> list[dict]:
+    with _conn() as con:
+        rows = con.execute(
+            "SELECT symbol, buy_price, sell_price, qty, pnl, pnl_pct, "
+            "       hold_days, opened_at, closed_at, pick_classification, exit_reason "
+            "FROM performance ORDER BY closed_at DESC"
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+def table_row_counts() -> dict[str, int]:
+    tables = ["scan_runs", "scans", "picks", "alerts",
+              "portfolio", "performance", "scan_reports"]
+    with _conn() as con:
+        return {t: con.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                for t in tables}
+
+def clear_alerts() -> None:
+    with _conn() as con:
+        con.execute("DELETE FROM alerts")
+        
+def clear_stock_performance_history() -> None:
+    with _conn() as con:
+        con.execute("DELETE FROM performance")        
+
+def clear_reports() -> None:
+    with _conn() as con:
+        con.execute("DELETE FROM scan_reports")
+
+def clear_runs_before(date_str: str) -> None:
+    with _conn() as con:
+        for tbl in ("scans", "picks", "scan_reports"):
+            con.execute(
+                f"DELETE FROM {tbl} WHERE run_id IN "
+                "(SELECT id FROM scan_runs WHERE run_at < ?)", (date_str,)
+            )
+        con.execute("DELETE FROM scan_runs WHERE run_at < ?", (date_str,))
+
+def clear_all() -> None:
+    with _conn() as con:
+        for tbl in ["scan_reports", "picks", "scans",
+                    "alerts", "scan_runs", "performance"]:
+            con.execute(f"DELETE FROM {tbl}")
+
         
 # ─────────────────────────────────────────────────────────────────────────────
 # SQLiteDatabase  –  DatabaseInterface implementation
 # ─────────────────────────────────────────────────────────────────────────────
 
-from db_interface import DatabaseInterface
+from .db_interface import DatabaseInterface
 
 class SQLiteDatabase(DatabaseInterface):
     """
@@ -701,6 +762,29 @@ class SQLiteDatabase(DatabaseInterface):
 
     def get_stock_analyst_report(self, symbol, category="Nifty100"):
         return get_stock_analyst_report(symbol, category)
+    
+    def closed_positions(self): 
+        return closed_positions()
+    
+    def table_row_counts(self): 
+        return table_row_counts()
+    
+    def clear_alerts(self):
+        return clear_alerts()
+    
+    def clear_reports(self):
+        return clear_reports()
+    
+    def clear_runs_before(self, date):
+        return clear_runs_before(date)
+    
+    def clear_all(self):
+        return clear_all()
+    
+    def clear_stock_performance_history(self):
+        return clear_stock_performance_history()
+()
+    
 
     # def get_stock_monitor_report(self, symbol):
     #     return get_stock_monitor_report(symbol)

@@ -33,21 +33,26 @@ Install:
   pip install streamlit plotly
 """
 
+
+# app/dashboard.py  — top of file, before all imports
+import sys
+from pathlib import Path
+
 import json
 from datetime import datetime
 
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+import pandas as pd
 
-from db_config import get_db
+# Add project root to path so 'core' and 'crew' packages are findable
+# app/dashboard.py → parent = app/ → parent = Momentum-Tracker/
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import logging
-from pathlib import Path
-
-from logger import get_logger, get_log_file
+from core import get_db
+from utils import get_logger, get_log_file
 dash_log = get_logger("dashboard")
-
 DB = get_db()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -93,7 +98,7 @@ _sidebar_category = st.sidebar.selectbox(
     key="sidebar_scan_category",
 )
 
-if st.sidebar.button("▶ Run momentum scan", use_container_width=True):
+if st.sidebar.button("▶ Run momentum scan", width='stretch'):
     with st.spinner(f"Scanning {_sidebar_category} — 3–10 mins..."):
         try:
             dash_log.info("Dashboard triggered: momentum scan [%s]", _sidebar_category)
@@ -183,98 +188,100 @@ if page == "Portfolio Overview":
             level = alert_map.get(sym, "–")
             badge = _alert_badge(level) if level != "–" else "⚪ No alert yet"
 
-            with st.expander(f"{sym}  ·  {badge}", expanded=(level == "RED")):
-                c1, c2, c3 = st.columns(3)
-                c1.metric("Buy price", f"₹{pos['buy_price']:.2f}")
-                c2.metric("Qty", pos["qty"])
-                c3.metric("Added", pos["added_at"][:10])
-                
+            with st.expander(f"{sym}  -  {badge} - [ Qty:{pos['qty']} ] -  [ Buy Price: {pos['buy_price']:.2f} ] ", expanded=(level == "RED")):
+                # c1, c2, c3 = st.columns(3)
+                # c1.metric("Buy price", f"₹{pos['buy_price']:.2f}")
+                # c2.metric("Qty", pos["qty"])
+                # c3.metric("Added", pos["added_at"][:10])
+                # Use this inside your loop instead of st.metric for maximum compactness
+                # c1, c2, c3 = st.columns(3)
+                # c1.markdown(f"**Buy Price**<br><span style='font-size:16px'>₹{pos['buy_price']:.2f}</span>", unsafe_allow_html=True)
+                # c2.markdown(f"**Qty**<br><span style='font-size:16px'>{pos['qty']}</span>", unsafe_allow_html=True)
+                # c3.markdown(f"**Added**<br><span style='font-size:16px'>{pos['added_at'][:10]}</span>", unsafe_allow_html=True)                
+                # st.divider()
                 # Fetch the most recent alert from the structured table
-                latest_alerts = DB.alert_history(symbol=sym, n=5)
-                if latest_alerts:
-                    st.caption("Last 5 Monitor alerts")
-                    for p in latest_alerts:
-                        st.write(
-                            f"**{p['alerted_at'][:10]}**  "
-                            f"{_alert_badge(p['alert_level'])}  "
-                            f": Conf - {p['confidence']}/5  · News - {p['raw_news'] or '–'}"
-                        )
-
-                # # Latest picks history
-                # picks = DB.recent_picks(sym, n=5)
-                # if picks:
-                #     st.caption("Last 5 analyst calls")
-                #     for p in picks:
-                #         st.write(
-                #             f"**{p['picked_at'][:10]}**  "
-                #             f"{_pick_badge(p['classification'])}  "
-                #             f"Conf {p['confidence']}/5  ·  {p['rationale'] or '–'}"
-                #         )
-                # # ADD THIS BLOCK — full analyst report for this stock
-                # st.divider()
-                # st.caption("Latest analyst report")
-                # analyst_report = DB.get_stock_analyst_report(sym)
-                # if analyst_report:
-                #     # Parse into labelled fields for clean display
-                #     field_colors = {
-                #         "CLASSIFICATION": {"BUY": "green", "HOLD": "orange", "AVOID": "red"},
-                #     }
-                #     for line in analyst_report.splitlines():
-                #         if not line.strip():
-                #             continue
-                #         if ":" in line:
-                #             label, _, value = line.partition(":")
-                #             label = label.strip()
-                #             value = value.strip()
-                #             if label == "CLASSIFICATION":
-                #                 color = field_colors["CLASSIFICATION"].get(value, "gray")
-                #                 st.markdown(f"**{label}:** :{color}[**{value}**]")
-                #             elif label == "SYMBOL":
-                #                 pass   # already shown in expander header
-                #             elif label in ("CONFIDENCE", "MOMENTUM QUALITY",
-                #                         "RISK FLAGS", "ONE-LINE RATIONALE"):
-                #                 st.markdown(f"**{label}:** {value}")
-                #             else:
-                #                 # Multi-line fields — show as caption
-                #                 st.markdown(f"**{label}:**")
-                #                 st.caption(value)
-                #         else:
-                #             st.caption(line)
-                # else:
-                #     st.caption("No analyst report found — run a scan first.")
+                alert_history_list = DB.alert_history(symbol=sym, n=10)
+                if alert_history_list:
+                    # st.caption("Last 10 Monitor alerts")
+                    # for p in latest_alerts:
+                    #     st.write(
+                    #         f"**{p['alerted_at'][:10]}**  "
+                    #         f"{_alert_badge(p['alert_level'])}  "
+                    #         f": Conf - {p['confidence']}/5  · News - {p['raw_news'] or '–'}"
+                    #     )
+                        
+                    df_alerts = pd.DataFrame(alert_history_list)
                     
-                # ADD after the analyst report block
-                # st.divider()
-                # st.caption("Latest monitor alert")
-                # monitor_report = DB.get_stock_monitor_report(sym)
-                # if monitor_report:
-                #     for line in monitor_report.splitlines():
-                #         line = line.strip()
-                #         if not line or line.startswith("═"):
-                #             continue
-                #         if line.startswith("ALERT"):
-                #             level_val = line.split(":", 1)[1].strip()
-                #             if "RED"    in level_val: st.error(f"🔴 {level_val}")
-                #             elif "YELLOW" in level_val: st.warning(f"🟡 {level_val}")
-                #             elif "GREEN"  in level_val: st.success(f"🟢 {level_val}")
-                #         elif line.startswith("TRIGGER SUMMARY"):
-                #             st.markdown(f"**Trigger:**")
-                #         elif line.startswith("RECOMMENDED ACTION"):
-                #             st.markdown(f"**Action:**")
-                #         elif line.startswith("NEWS STORIES"):
-                #             st.markdown(f"**News considered:**")
-                #         elif line.startswith("RISK FLAGS"):
-                #             val = line.split(":", 1)[1].strip()
-                #             st.markdown(f"**Risk flags:** {val}")
-                #         elif line.startswith("CONFIDENCE"):
-                #             val = line.split(":", 1)[1].strip()
-                #             st.markdown(f"**Confidence:** {val}")
-                #         elif line.startswith("TICKER") or line.startswith("═"):
-                #             pass
-                #         else:
-                #             st.caption(line)
-                # else:
-                #     st.caption("No monitor report yet — run portfolio monitor first.")
+                    # 3. Main UI Layout: Left (Table) | Right (Analyst View)
+                    col_left, col_mid, col_right = st.columns([1, 0.05, 1.5])
+                    
+                    with col_left:
+                        st.subheader("Alert History")
+                        df_display = df_alerts[["alert_level", "confidence", 'alerted_at']]
+        
+                        # 2. Display the filtered dataframe
+                        df_event = st.dataframe(
+                            df_display,
+                            key=f"df_{sym}", 
+                            height=300,
+                            width='stretch',
+                            hide_index=True,
+                            on_select="rerun",
+                            selection_mode="single-row",
+                            column_config={
+                                "alert_level": st.column_config.TextColumn("Alert Level"),
+                                "confidence": st.column_config.TextColumn("Confidence"),
+                                "alerted_at": st.column_config.TextColumn("Alerted Time"),
+                            }
+                        )
+                        
+                        
+                    # 2. Add the vertical divider in the middle column
+                    with col_mid:
+                        # Use HTML/CSS to draw the line
+                        st.markdown(
+                            """
+                            <div style="border-left: 1px solid #D3D3D3; height: 300px; margin-top: 50px;"></div>
+                            """, 
+                            unsafe_allow_html=True
+                        )
+                        
+                    with col_right:
+                        st.subheader("Detail View")
+                        
+                        # Check if a row is selected in THIS specific dataframe
+                        # 4. Handle Selection
+                        if df_event.selection.rows:
+                            # Extract index from the event
+                            selected_idx = df_event.selection.rows[0]
+                            
+                            # Access the original raw data using the index
+                            # This is safer than using df_display.iloc because it preserves all fields
+                            selected_alert_data = alert_history_list[selected_idx]
+                            
+                            # 5. Display details
+                            # st.markdown(f"### Report: {selected_alert_data.get('alert_level', 'N/A')}")
+                            
+                            # # Use metrics for a clean look
+                            # m1, m2 = st.columns(2)
+                            # m1.metric("Confidence", selected_alert_data.get('confidence', 'N/A'))
+                            # m2.metric("Date", selected_alert_data.get('alerted_at', 'N/A')[:10])
+                            
+                            # st.divider()
+                            
+                            st.markdown("**Trigger Summary**")
+                            st.info(selected_alert_data.get('trigger', 'No trigger info.'))
+                            
+                            st.markdown("**Recommended Action**")
+                            st.write(selected_alert_data.get('action', 'No action provided.'))
+                            
+                            st.markdown("**Risk Flags**")
+                            risk_val = selected_alert_data.get('risk_flags', 'None')
+                            st.write(risk_val if risk_val else "None")
+                        else:
+                            st.info("Select a row from the table to view full alert details.")
+                else:
+                    st.warning("No alert history for this position.")
                     
                 # --- REPLACE THE "Latest monitor alert" BLOCK WITH THIS ---
                 st.divider()
@@ -332,7 +339,6 @@ if page == "Portfolio Overview":
 # ─────────────────────────────────────────────────────────────────────────────
  
 elif page == "Add/Remove Stocks":
-    import pandas as pd
     st.title("Execute Trades")
  
     # ── Add new position ──────────────────────────────────────────────────────
@@ -343,7 +349,7 @@ elif page == "Add/Remove Stocks":
         new_buy_price  = c2.number_input("Buy price (₹)", min_value=0.01, step=0.5)
         new_qty        = c3.number_input("Qty", min_value=1, step=1)
         new_trade_date = c4.date_input("Trade date", value=datetime.now().date())
-        add_submitted  = st.form_submit_button("Add position", type="primary", use_container_width=True)
+        add_submitted  = st.form_submit_button("Add position", type="primary", width='stretch')
  
     if add_submitted:
         if not new_ticker.strip():
@@ -374,7 +380,7 @@ elif page == "Add/Remove Stocks":
  
         st.dataframe(
             df_held[["symbol", "buy_price", "qty", "added_at", "alert"]],
-            use_container_width=True,
+            width='stretch',
             hide_index=True,
             column_config={
                 "symbol":    st.column_config.TextColumn("Symbol",     width=150),
@@ -399,7 +405,7 @@ elif page == "Add/Remove Stocks":
                 "Exit reason",
                 ["MANUAL", "RED_ALERT", "TARGET_HIT", "STOP_LOSS"],
             )
-            close_submitted = st.form_submit_button("Close position", type="primary", use_container_width=True)
+            close_submitted = st.form_submit_button("Close position", type="primary", width='stretch')
  
         if close_submitted:
             try:
@@ -421,13 +427,7 @@ elif page == "Add/Remove Stocks":
  
     # ── Closed positions history ──────────────────────────────────────────────
     st.subheader("🗂️ Closed positions history")
-    from persistence import _conn
-    with _conn() as con:
-        closed_rows = con.execute(
-            "SELECT symbol, buy_price, sell_price, qty, pnl, pnl_pct, "
-            "       hold_days, opened_at, closed_at, pick_classification, exit_reason "
-            "FROM performance ORDER BY closed_at DESC"
-        ).fetchall()
+    closed_rows = DB.closed_positions()  # REPLACE the above raw SQL with this method from the DB interface
  
     if not closed_rows:
         st.info("No closed trades yet.")
@@ -440,7 +440,7 @@ elif page == "Add/Remove Stocks":
  
         st.dataframe(
             df_closed,
-            use_container_width=True,
+            width='stretch',
             hide_index=True,
             column_config={
                 "symbol":             st.column_config.TextColumn("Symbol",       width=130),
@@ -509,7 +509,7 @@ elif page == "Scan history":
         # REPLACE the existing st.dataframe call with this
         st.dataframe(
             df[["rank", "symbol", "wms", "rsi", "mfi", "cci", "pick", "confidence"]],
-            use_container_width=True,
+            width='stretch',
             hide_index=True,
             column_config={
                 "rank":       st.column_config.NumberColumn("Rank",           width=40),
@@ -533,7 +533,7 @@ elif page == "Scan history":
             height=350,
         )
         fig.update_layout(showlegend=True, xaxis_tickangle=-45)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
         if st.button("Export to CSV"):
             path = DB.export_picks_csv()
@@ -609,7 +609,7 @@ elif page == "Performance":
                 for k, v in summary["by_classification"].items()
             ]
             import pandas as pd
-            st.dataframe(pd.DataFrame(cls_data), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(cls_data), width='stretch', hide_index=True)
 
             fig2 = px.bar(
                 cls_data, x="Classification", y="Win rate",
@@ -619,7 +619,7 @@ elif page == "Performance":
                 title="Win rate by pick classification",
                 height=300,
             )
-            st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(fig2, width='stretch')
 
         # Best and worst
         col1, col2 = st.columns(2)
@@ -737,7 +737,7 @@ elif page == "Scan reports":
                     event = st.dataframe(
                         df,
                         height=500,  # <--- Set this to your preferred height in pixels (e.g., 500, 600, 800)
-                        use_container_width=True,
+                        width='stretch',
                         hide_index=True,
                         on_select="rerun",
                         selection_mode="single-row",
@@ -800,19 +800,11 @@ elif page == "Settings":
 
     # ── Table stats ───────────────────────────────────────────────────
     st.subheader("Database summary")
-    from persistence import _conn
-    stats = {}
-    with _conn() as con:
-        for table in ["scan_runs", "scans", "picks", "alerts",
-                      "portfolio", "performance", "scan_reports"]:
-            stats[table] = con.execute(
-                f"SELECT COUNT(*) FROM {table}"
-            ).fetchone()[0]
-
+    stats = DB.table_row_counts()
     import pandas as pd
     st.dataframe(
         pd.DataFrame(stats.items(), columns=["Table", "Rows"]),
-        use_container_width=True,
+        width='stretch',
         hide_index=True,
     )
 
@@ -825,20 +817,17 @@ elif page == "Settings":
     col1, col2, col3 = st.columns(3)
 
     if col1.button("Clear all alerts"):
-        with _conn() as con:
-            con.execute("DELETE FROM alerts")
+        DB.clear_alerts()
         st.success("All alerts cleared.")
         st.rerun()
 
     if col2.button("Clear all scan reports"):
-        with _conn() as con:
-            con.execute("DELETE FROM scan_reports")
+        DB.clear_reports()
         st.success("All scan reports cleared.")
         st.rerun()
 
     if col3.button("Clear performance history"):
-        with _conn() as con:
-            con.execute("DELETE FROM performance")
+        DB.clear_stock_performance_history()
         st.success("Performance history cleared.")
         st.rerun()
 
@@ -847,20 +836,7 @@ elif page == "Settings":
     cutoff = st.date_input("Delete all scan runs before", value=None)
     if st.button("Clear old scans") and cutoff:
         cutoff_str = str(cutoff)
-        with _conn() as con:
-            con.execute(
-                "DELETE FROM scans WHERE run_id IN "
-                "(SELECT id FROM scan_runs WHERE run_at < ?)", (cutoff_str,)
-            )
-            con.execute(
-                "DELETE FROM picks WHERE run_id IN "
-                "(SELECT id FROM scan_runs WHERE run_at < ?)", (cutoff_str,)
-            )
-            con.execute(
-                "DELETE FROM scan_reports WHERE run_id IN "
-                "(SELECT id FROM scan_runs WHERE run_at < ?)", (cutoff_str,)
-            )
-            con.execute("DELETE FROM scan_runs WHERE run_at < ?", (cutoff_str,))
+        DB.clear_runs_before(cutoff_str)
         st.success(f"Cleared all scan data before {cutoff_str}.")
         st.rerun()
 
@@ -868,10 +844,7 @@ elif page == "Settings":
     st.subheader("Nuclear option")
     confirm = st.text_input("Type YES to clear ALL data except portfolio positions")
     if st.button("Clear everything", type="primary") and confirm == "YES":
-        with _conn() as con:
-            for table in ["scan_reports", "picks", "scans",
-                          "alerts", "scan_runs", "performance"]:
-                con.execute(f"DELETE FROM {table}")
+        DB.clear_all()
         st.success("All data cleared. Portfolio positions preserved.")
         st.rerun()
         

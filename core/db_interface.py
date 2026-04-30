@@ -175,6 +175,33 @@ class DatabaseInterface(ABC):
         Extract the analyst block for a specific stock from the latest
         scan report for the given category.
         """
+    @abstractmethod
+    def closed_positions(self) -> list[dict]:
+        """Return all closed trades from performance table, newest first."""
+
+    @abstractmethod
+    def table_row_counts(self) -> dict[str, int]:
+        """Return {table_name: row_count} for all system tables."""
+
+    @abstractmethod
+    def clear_alerts(self) -> None:
+        """Delete all rows from the alerts table."""
+
+    @abstractmethod
+    def clear_reports(self) -> None:
+        """Delete all rows from the scan_reports table."""
+
+    @abstractmethod
+    def clear_runs_before(self, date_str: str) -> None:
+        """Delete all scan runs and related data older than date_str (YYYY-MM-DD)."""
+
+    @abstractmethod
+    def clear_all(self) -> None:
+        """Delete all scan/alert/performance data. Portfolio positions preserved."""
+        
+    @abstractmethod
+    def clear_stock_performance_history(self) -> None:
+        """Delete all rows from the performance table."""
 
     # @abstractmethod
     # def get_stock_monitor_report(self, symbol: str) -> str | None:

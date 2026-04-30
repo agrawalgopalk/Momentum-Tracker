@@ -47,9 +47,7 @@ Usage
 
 from __future__ import annotations
 
-import argparse
-# import logging
-# import sys
+
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -58,17 +56,16 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 # ── All crew logic lives in these two files ────────────────────────────────
-from stock_discovery_agents import run_momentun_discovery  # discovery pipeline
-from portfolio_monitor import run_monitor          # alert pipeline
-from db_config import get_db
-from utils import normalise_ticker as _normalise  # normalise symbol-field aliases in monitor output
-from utils import clean_text                         # remove emojis and clean whitespace in monitor output
+from crew import run_momentun_discovery  # discovery pipeline
+from crew import run_monitor          # alert pipeline
+from core import get_db
+from utils import normalise_ticker as _normalise    # normalise symbol-field aliases in monitor output
+from utils import clean_text                        # remove emojis and clean whitespace in monitor output
+from utils import get_logger
+log = get_logger("scheduler")
+DB = get_db()
 
 IST = ZoneInfo("Asia/Kolkata")
-from logger import get_logger
-log = get_logger("scheduler")
-
-DB = get_db()
 # ─────────────────────────────────────────────────────────────────────────────
 # Job 1 – Scan + classify  (delegates entirely to main.py)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -78,7 +75,7 @@ def job_scan_and_classify(category: str = "Nifty100"):
     Runs the discovery crew from main.py, then saves results to persistence.py.
     No crew logic here — just orchestration.
     """
-    log.info("=== JOB 1: Momentum scan + classification (via main.py) ===")
+    log.info("=== JOB 1: Momentum scan + classification (via scheduler.py) ===")
     try:
         result = run_momentun_discovery(category=category, use_memory=False)
 
@@ -322,6 +319,7 @@ def start_scheduler():
 # Entry point
 # ─────────────────────────────────────────────────────────────────────────────
 
+import argparse
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Momentum system scheduler")
     parser.add_argument(

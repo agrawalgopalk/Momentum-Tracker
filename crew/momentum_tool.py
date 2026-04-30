@@ -34,7 +34,7 @@ from typing import Any, Type
 from crewai.tools import BaseTool
 from pydantic import Field
 from pydantic import BaseModel, Field
-from logger import get_logger
+from utils import get_logger
 log = get_logger(__name__)
 
 # 1. Define the schema explicitly
@@ -191,7 +191,7 @@ class MomentumBackboneTool(BaseTool):
         from pathlib import Path
 
         # Absolute path to momentum_tracker/ — single source of truth for all paths
-        _root    = Path(__file__).resolve().parent          # Momentum-Tracker/
+        _root    = Path(__file__).resolve().parent.parent   # Momentum-Tracker/
         _pkg     = _root / "momentum_tracker"               # momentum_tracker/
         _src     = _pkg / "src"                             # momentum_tracker/src/
 

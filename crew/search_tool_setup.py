@@ -20,7 +20,7 @@ from typing import Type
 from crewai.tools import BaseTool
 
 # pip install -U duckduckgo-search langchain-community
-from logger import get_logger
+from utils import get_logger
 log = get_logger(__name__)
 
 # 1. Define the input schema

@@ -9,6 +9,8 @@ __pycache__/
 # --- Project Specific (Ignore everywhere) ---
 # Ignores 'mps_cache' folders in any directory
 **/mps_cache/
+**/data_cache/
+data_cache/
 
 # Ignore data exports and charts
 *.xlsx

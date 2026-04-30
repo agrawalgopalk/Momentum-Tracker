@@ -38,8 +38,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from db_interface import DatabaseInterface
-from logger import get_logger
+from .db_interface import DatabaseInterface
+from utils import get_logger
 
 log = get_logger(__name__)
 
@@ -597,6 +597,58 @@ class PostgreSQLDatabase(DatabaseInterface):
 
         return (f"SYMBOL: {symbol}" + match.group(1).strip()) if match else None
 
+    def closed_positions(self) -> list[dict]:
+        with self._conn() as con:
+            cur = con.cursor()
+            cur.execute(
+                "SELECT symbol, buy_price, sell_price, qty, pnl, pnl_pct, "
+                "       hold_days, opened_at, closed_at, pick_classification, exit_reason "
+                "FROM performance ORDER BY closed_at DESC"
+            )
+            return [dict(r) for r in cur.fetchall()]
+
+    def table_row_counts(self) -> dict[str, int]:
+        tables = ["scan_runs", "scans", "picks", "alerts",
+                "portfolio", "performance", "scan_reports"]
+        with self._conn() as con:
+            cur = con.cursor()
+            return {t: cur.execute(f"SELECT COUNT(*) FROM {t}") or
+                    cur.fetchone()["count"] for t in tables}
+        # cleaner version:
+        result = {}
+        with self._conn() as con:
+            cur = con.cursor()
+            for t in tables:
+                cur.execute(f"SELECT COUNT(*) AS count FROM {t}")
+                result[t] = cur.fetchone()["count"]
+        return result
+
+    def clear_alerts(self) -> None:
+        with self._conn() as con:
+            con.cursor().execute("DELETE FROM alerts")
+
+    def clear_reports(self) -> None:
+        with self._conn() as con:
+            con.cursor().execute("DELETE FROM scan_reports")
+
+    def clear_runs_before(self, date_str: str) -> None:
+        with self._conn() as con:
+            cur = con.cursor()
+            for tbl in ("scans", "picks", "scan_reports"):
+                cur.execute(
+                    f"DELETE FROM {tbl} WHERE run_id IN "
+                    "(SELECT id FROM scan_runs WHERE run_at < %s)", (date_str,)
+                )
+            cur.execute("DELETE FROM scan_runs WHERE run_at < %s", (date_str,))
+
+    def clear_all(self) -> None:
+        with self._conn() as con:
+            cur = con.cursor()
+            for tbl in ["scan_reports", "picks", "scans",
+                        "alerts", "scan_runs", "performance"]:
+                cur.execute(f"DELETE FROM {tbl}")
+                
+                
     # def get_stock_monitor_report(self, symbol: str) -> str | None:
     #     """Extract the monitor alert block for a specific stock from the latest Monitor report."""
     #     with self._conn() as con:
