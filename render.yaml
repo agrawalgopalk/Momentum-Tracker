@@ -1,16 +1,21 @@
 services:
   - type: web
-    name: my-streamlit-crew-app
+    name: momentum-tracker-app
     runtime: python
     plan: free
+    # Adjust this line if your main Streamlit file is inside the 'app' folder (e.g., app/main.py)
     startCommand: streamlit run app/dashboard.py --server.port $PORT
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false # You will paste your actual free Groq token safely inside Render's Dashboard
     disk:
-      name: app-data
+      name: momentum-persistent-storage
+      # This attaches a permanent hard drive right inside your project directory
       mountPath: /opt/render/project/src/data
       sizeGB: 1
 
 databases:
-  - name: my-mysql-db
+  - name: momentum-mysql-db
     databaseName: crew_db
     user: admin
     plan: free
