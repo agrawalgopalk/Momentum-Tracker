@@ -1,0 +1,14 @@
+{
+  "$schema": "https://railway.app",
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "streamlit run app/dashboard.py --server.port $PORT",
+    "restartPolicyType": "ON_FAILURE",
+    "volumes": {
+      "/opt/render/project/src/data_cache": "database-and-logs",
+      "/opt/render/project/src/momentum_tracker/mps_cache": "crew-cache-data"
+    }
+  }
+}
