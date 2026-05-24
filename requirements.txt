@@ -1,0 +1,16 @@
+# Core UI and Frameworks
+streamlit==1.56.0
+crewai==1.14.3
+crewai-tools==1.14.3
+
+# Data and APIs
+yfinance==1.3.0
+pandas==3.0.2
+
+# Database Connections
+pymysql==1.1.1
+SQLAlchemy==2.0.49
+
+# Environment and Utilities
+python-dotenv==1.2.2
+cryptography==46.0.7
