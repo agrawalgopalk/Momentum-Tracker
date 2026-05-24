@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: my-streamlit-crew-app
+    runtime: python
+    plan: free
+    startCommand: streamlit run app/dashboard.py --server.port $PORT
+    disk:
+      name: app-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
+
+databases:
+  - name: my-mysql-db
+    databaseName: crew_db
+    user: admin
+    plan: free
