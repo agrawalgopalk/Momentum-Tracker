@@ -97,6 +97,7 @@ def _build_agent_and_tasks(held: list[dict]) -> tuple[Task, Task]:
         llm=llm_scanner,
         tools=[search_tool],
         verbose=True,
+        use_native_tools=False  # <--- FORCE AGENT TO USE STANDARD REACT/TOOL FORMATTING
         allow_delegation=False,
         system_prompt="You are an AI with access to the 'web_search' tool. "
                       "When you need to search the web, you MUST invoke the tool directly. "
@@ -119,6 +120,7 @@ def _build_agent_and_tasks(held: list[dict]) -> tuple[Task, Task]:
         ),
         llm=llm_classifier,
         verbose=True,
+        use_native_tools=False  # <--- FORCE AGENT TO USE STANDARD REACT/TOOL FORMATTING
     )
 
     # ── Task 1: News collection ────────────────────────────────────────────
