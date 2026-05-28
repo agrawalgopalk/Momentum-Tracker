@@ -23,7 +23,8 @@ class LLMConfig:
                 temperature=0, # Low temperature is CRITICAL for preventing hallucinated tool syntax
                 api_key=os.getenv("GROQ_API_KEY"),
                 # CRITICAL: This forces CrewAI to use text prompts for tools instead of breaking Groq endpoints
-                native_tool_calling=False 
+                # native_tool_calling=False 
+                use_native_tools=False  # <--- ADD THIS LINE HERE TO FIX RENDER
             )
         
         elif current_provider == "gemini":
