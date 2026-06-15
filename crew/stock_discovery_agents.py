@@ -57,6 +57,7 @@ def _build_agent_and_tasks(category: str = "Nifty100", top_n: int = 20) -> Crew:
         llm=llm_scout,
         tools=[MomentumBackboneTool()],
         verbose=True,
+        use_native_tools=False  # <--- FORCE AGENT TO USE STANDARD REACT/TOOL FORMATTING
     )
 
     analyst = Agent(
@@ -77,6 +78,7 @@ def _build_agent_and_tasks(category: str = "Nifty100", top_n: int = 20) -> Crew:
         llm=llm_analyst,
         tools=[search_tool],
         verbose=True,
+        use_native_tools=False  # <--- FORCE AGENT TO USE STANDARD REACT/TOOL FORMATTING
     )
 
     # ── Tasks ─────────────────────────────────────────────────────────────
