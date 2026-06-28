@@ -38,24 +38,47 @@ This document summarizes all local changes made to the base code (comparing the 
 A premium Django-based dashboard was created from scratch to serve as a comprehensive management interface:
 - **Project Structure**: [manage.py](../manage.py) and [momentum_project/](../momentum_project) configuration directories.
 - **App Module**: [dashboard/](../dashboard) holding views, static CSS stylesheets, URLs, and template pages:
-  - **Overview**: Active position metric cards and alerts log.
+  - **Authentication**: Login & Signup views with Django user authentication.
+  - **Overview**: Active position metric cards, portfolio summary, and background portfolio monitor trigger.
   - **Execute Trades**: Interface to add or manually close stock holdings.
-  - **Add Transaction**: A dedicated bulk upload page with a glassmorphic drag-and-drop file interface.
+  - **Add Transaction**: A dedicated bulk upload page with a glassmorphic drag-and-drop file interface for CSV/Excel imports.
   - **2-Stage Interactive Scan**:
     * **Stage 1 (Instant Ranks)**: Calculates quantitative momentum ranks instantly and saves them to the session.
     * **Stage 2 (Targeted Deep-Dive)**: Displays an interactive selection checklist for stocks, exposes checkboxes to enable/disable the "Technical Chart Analyst" and "FII/DII Flow Analyst" agents, and triggers the CrewAI discovery analysis in a background thread only on checked symbols.
   - **Scan History & Reports**: quantitative result sheets, exports (Excel/CSV), and generative LLM analyst briefs.
   - **Performance Analytics**: Histograms and win rate calculators categorized by agent classification tags.
+  - **Backtest Interface**: Historical strategy validation with parameter tweaking.
+  - **Rebalance Assistant**: Portfolio rebalancing recommendations with BUY/HOLD/SELL actions.
+  - **Settings**: User preferences, API configuration, and environment variable management.
+  - **Rate-Limit Queue Management**: Automatic retry queue for rate-limited API calls with exponential backoff (up to 5 retries).
+  - **Background Caching Worker**: `DashboardConfig.ready()` spawns a background thread that pre-caches stock prices, fundamentals, and FII/DII data on Django startup.
 
 ---
 
-## 3. High-level Facade Layer
+## 3. Advanced CrewAI Discovery Tools
+
+### New Specialized Agent Tools
+- **Technical Chart Tool** ([crew/chart_tool.py](../crew/chart_tool.py)): Analyzes price action, trend status (EMAs), support/resistance levels, and oscillator states (RSI/CCI) for momentum candidates to identify low-risk entry setups.
+- **Institutional Flow Tool** ([crew/institutional_flow_tool.py](../crew/institutional_flow_tool.py)): Analyzes FII/DII market flows and stock-specific bulk/block deals to verify institutional interest and volume support for discovered candidates.
+
+### Batch Processing & Discovery Functions
+- **`run_analyst_batch(tickers, provider=None, run_technical=True, run_flow=True)`**: Executes CrewAI analysis on a batch of tickers with optional provider selection and tool enablement flags.
+- **`process_tickers_batch(tickers, run_technical=True, run_flow=True)`**: Core batch orchestration that processes multiple stocks in parallel, respecting rate limits and accumulating structured analysis results.
+- **`_parse_scan_rows(text: str) -> list[dict]`**: Parses raw CrewAI scan output into structured dictionary rows for database persistence and frontend rendering.
+
+### Enhanced LLM Configuration
+- Modified `LLMConfig.get_llm()` to accept optional `provider` parameter, enabling runtime fallback between Gemini (primary) and Groq (fallback) when quota limits are hit.
+- Environment variable auto-loading in LLM config to ensure fresh credentials on each init.
+
+---
+
+## 4. High-level Facade Layer
 
 - Added [api.py](../momentum_tracker/api.py) under `momentum_tracker/` which abstracts initialization of config settings, downloader factories, databases, strategies, and runners. Exposes `analyze_tickers` programmatically with selection parameters to control sub-agent execution.
 
 ---
 
-## 4. Core Algorithm & Scoring Enhancements
+## 5. Core Algorithm & Scoring Enhancements
 
 ### Series-based Technical Indicators
 - Added vectorized series equivalents of multi-factor technical indicators to [technical_indicators.py](../momentum_tracker/src/strategy/technical_indicators.py):
@@ -74,6 +97,8 @@ A premium Django-based dashboard was created from scratch to serve as a comprehe
 
 ### Robust LLM Provider Fallback in Portfolio Monitor
 - Modified `crew/portfolio_monitor.py` to wrap agent execution inside a primary-vs-fallback try-except block. If the primary provider (e.g., Gemini) triggers a 429 quota error, it automatically falls back to Groq instantly to ensure uninterrupted service when calling the portfolio monitor.
+- `_build_agent_and_tasks()` now returns both agents and tasks (tuple of 4 elements) to support provider-specific initialization.
+- `_run_monitor_impl()` contains the core logic, while `run_monitor()` wraps it with fallback handling.
 
 ### Background Precache AppConfig Worker & Momentum Score Caching
 - Implemented an automatic caching daemon in `DashboardConfig.ready()` (under `dashboard/apps.py`).
@@ -84,7 +109,7 @@ A premium Django-based dashboard was created from scratch to serve as a comprehe
 
 ---
 
-## 5. Verification & Test Suite
+## 6. Verification & Test Suite
 
 ### New Unit and Integration Tests
 - [test_django_features.py](../tests/integration/test_django_features.py): Validates views rendering, authentication redirection, and API routing.
