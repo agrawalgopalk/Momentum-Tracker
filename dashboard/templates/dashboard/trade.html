@@ -1,0 +1,231 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Execute Trades - Momentum Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Execute Trades</h1>
+        <p class="page-subtitle">Add active positions, log sell transactions, and check history</p>
+    </div>
+</div>
+
+<div class="split-layout" style="grid-template-columns: 1fr 1fr; margin-bottom: 30px;">
+    <!-- Add Position Panel -->
+    <div class="form-panel" style="margin-bottom: 0;">
+        <div class="form-title">➕ Add position</div>
+        <form method="POST" action="{% url 'trade' %}">
+            {% csrf_token %}
+            <input type="hidden" name="add_position" value="1">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="symbol">Ticker</label>
+                    <input type="text" id="symbol" name="symbol" placeholder="e.g. RELIANCE.NS" required style="text-transform: uppercase;">
+                </div>
+                <div class="form-group">
+                    <label for="buy_price">Buy Price (₹)</label>
+                    <input type="number" step="0.01" min="0.01" id="buy_price" name="buy_price" placeholder="₹ Price" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="qty">Quantity</label>
+                    <input type="number" min="1" id="qty" name="qty" placeholder="Shares" required>
+                </div>
+                <div class="form-group">
+                    <label for="trade_date">Trade Date</label>
+                    <input type="date" id="trade_date" name="trade_date" value="{{ today }}">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-primary" style="margin-top: 10px; width: 100%;">
+                <i class="fa-solid fa-plus"></i> Add Position
+            </button>
+        </form>
+    </div>
+
+    <!-- Close Position Panel -->
+    <div class="form-panel" style="margin-bottom: 0;">
+        <div class="form-title">❌ Close position</div>
+        {% if held_positions %}
+        <form method="POST" action="{% url 'trade' %}">
+            {% csrf_token %}
+            <input type="hidden" name="close_position" value="1">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="close_sym">Select Ticker</label>
+                    <select id="close_sym" name="symbol" required>
+                        {% for pos in held_positions %}
+                        <option value="{{ pos.symbol }}">{{ pos.symbol }} (Qty: {{ pos.qty }} @ ₹{{ pos.buy_price }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="close_price">Sell Price (₹)</label>
+                    <input type="number" step="0.01" min="0.01" id="close_price" name="sell_price" placeholder="₹ Price" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="close_reason">Exit Reason</label>
+                    <select id="close_reason" name="exit_reason">
+                        <option value="MANUAL">MANUAL</option>
+                        <option value="RED_ALERT">RED_ALERT</option>
+                        <option value="TARGET_HIT">TARGET_HIT</option>
+                        <option value="STOP_LOSS">STOP_LOSS</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-primary" style="margin-top: 10px; width: 100%; background: linear-gradient(135deg, var(--red), #e64a19); box-shadow: 0 4px 12px rgba(255, 82, 82, 0.25); color: white;">
+                <i class="fa-solid fa-times"></i> Close Position
+            </button>
+        </form>
+        {% else %}
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 180px; color: var(--text-secondary);">
+            <i class="fa-solid fa-info-circle" style="font-size: 24px; margin-bottom: 8px;"></i>
+            <p>No open positions available to close.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Bulk Upload Link Card -->
+<div class="form-panel" style="margin-bottom: 30px; padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 12px;">
+    <div style="font-size: 40px; background: linear-gradient(135deg, var(--primary), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><i class="fa-solid fa-file-import"></i></div>
+    <div style="font-size: 18px; font-weight: 600; color: #ffffff;">Bulk Transaction Uploader</div>
+    <p style="font-size: 14px; color: var(--text-secondary); max-width: 480px; margin-bottom: 8px;">
+        Upload Excel or CSV transaction reports (including SmallCase files) to bulk update portfolio holdings and closed trades history.
+    </p>
+    <a href="{% url 'add_transaction' %}" class="btn-primary" style="text-decoration: none; padding: 12px 30px; font-weight: 700; width: auto; display: inline-flex;">
+        Go to Add Transaction Page
+    </a>
+</div>
+
+<!-- Open Positions Table -->
+<div class="page-header" style="margin-top: 40px; margin-bottom: 15px;">
+    <h2 style="font-size: 20px; color: #ffffff;">📂 Open Positions</h2>
+</div>
+{% if held_positions %}
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Buy Price (₹)</th>
+                <th>Qty</th>
+                <th>Added Date</th>
+                <th>Last Alert</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pos in held_positions %}
+            <tr>
+                <td style="font-weight: 700; color: #ffffff;">{{ pos.symbol }}</td>
+                <td>₹{{ pos.buy_price|floatformat:2 }}</td>
+                <td>{{ pos.qty }}</td>
+                <td>{{ pos.added_at }}</td>
+                <td>
+                    {% if pos.alert_level == 'RED' %}
+                    <span class="badge badge-red">🔴 RED</span>
+                    {% elif pos.alert_level == 'YELLOW' %}
+                    <span class="badge badge-yellow">🟡 YELLOW</span>
+                    {% elif pos.alert_level == 'GREEN' %}
+                    <span class="badge badge-green">🟢 GREEN</span>
+                    {% else %}
+                    <span class="badge badge-gray">–</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p style="color: var(--text-secondary); margin-bottom: 30px;">No open positions yet.</p>
+{% endif %}
+
+<!-- Closed Positions Table -->
+<div class="page-header" style="margin-top: 40px; margin-bottom: 15px;">
+    <h2 style="font-size: 20px; color: #ffffff;">🗂️ Closed Positions History</h2>
+</div>
+{% if closed_positions %}
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Buy Price (₹)</th>
+                <th>Sell Price (₹)</th>
+                <th>Qty</th>
+                <th>P&L (₹)</th>
+                <th>P&L %</th>
+                <th>Days Held</th>
+                <th>Opened</th>
+                <th>Closed</th>
+                <th>Pick</th>
+                <th>Exit Reason</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pos in closed_positions %}
+            <tr>
+                <td style="font-weight: 700; color: #ffffff;">{{ pos.symbol }}</td>
+                <td>₹{{ pos.buy_price|floatformat:2 }}</td>
+                <td>₹{{ pos.sell_price|floatformat:2 }}</td>
+                <td>{{ pos.qty }}</td>
+                <td class="{% if pos.pnl >= 0 %}pnl-positive{% else %}pnl-negative{% endif %}" style="font-weight: 600;">
+                    ₹{{ pos.pnl|floatformat:2 }}
+                </td>
+                <td class="{% if pos.pnl_pct >= 0 %}pnl-positive{% else %}pnl-negative{% endif %}" style="font-weight: 600;">
+                    {% if pos.pnl_pct >= 0 %}+{% endif %}{{ pos.pnl_pct|floatformat:2 }}%
+                </td>
+                <td>{{ pos.hold_days|default:"0" }}</td>
+                <td>{{ pos.opened_at }}</td>
+                <td>{{ pos.closed_at }}</td>
+                <td>
+                    {% if pos.pick_classification == 'BUY' %}
+                    <span class="badge badge-green">BUY</span>
+                    {% elif pos.pick_classification == 'HOLD' %}
+                    <span class="badge badge-yellow">HOLD</span>
+                    {% elif pos.pick_classification == 'AVOID' %}
+                    <span class="badge badge-red">AVOID</span>
+                    {% else %}
+                    <span class="badge badge-gray">–</span>
+                    {% endif %}
+                </td>
+                <td><span class="badge badge-gray">{{ pos.exit_reason }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p style="color: var(--text-secondary); margin-bottom: 30px;">No closed trades logged yet.</p>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Set default trade date picker to today and handle pre-selected symbols
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        const dateInput = document.getElementById('trade_date');
+        if (dateInput && !dateInput.value) {
+            dateInput.value = today;
+        }
+
+        // Parse query parameter to pre-select symbol in the Close Position dropdown
+        const urlParams = new URLSearchParams(window.location.search);
+        const preselectedSymbol = urlParams.get('symbol');
+        if (preselectedSymbol) {
+            const closeSelect = document.getElementById('close_sym');
+            if (closeSelect) {
+                closeSelect.value = preselectedSymbol.trim().toUpperCase();
+            }
+        }
+    });
+</script>
+{% endblock %}

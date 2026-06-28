@@ -8,31 +8,40 @@ parameters (data, momentum, filters, scoring, backtest).
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any, Dict
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
 # Default configuration – single source of truth
 # ---------------------------------------------------------------------------
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
 DEFAULT_CONFIG: Dict[str, Any] = {
     "VERSION": "v11.0.0",
     "SYSTEM_CONFIG": {
         "DEBUG_MODE": False,
+        "BACKTEST_RESULTS_DIR": str(PROJECT_ROOT / "Backtest_Results"),
+        "OUTPUT_DIR": str(PROJECT_ROOT / "output"),
+        "REBALANCE_HISTORY_DIR": str(PROJECT_ROOT / "Rebalance_history"),
+        "CACHE_DIR": str(PROJECT_ROOT / "data_cache"),
+        "SQLITE_PATH": str(PROJECT_ROOT / "data_cache" / "momentum.db"),
     },
     "DATA_CONFIG": {
         # Where stock-universe CSVs (ind_*list.csv) live.
-        # SymbolLoader will also fall back to repo root for backward compatibility.
-        "SYMBOLS_DIR": "data/symbols",
+        "SYMBOLS_DIR": str(PROJECT_ROOT / "data"),
         "INDICES": {
             "Nifty50":              "^NSEI",
             "Nifty100":             "^CNX100",
             "Midcap150":            "NIFTYMIDCAP150.NS",
-            "Smallcap250":          "^CNXSC",
-            "NiftyLargeMidcap250":  "NIFTY_LARGEMID250.NS",
+            "Smallcap250":          "MOSMALL250.NS",
+            "NiftyLargeMidcap250":  "ELM250.NS",
             "NiftyNext50":          "^NSMIDCP",
             "Nifty500":             "^CRSLDX",
-            "NiftyMicrocap250":     "NIFTY_MICROCAP250.NS",
+            "NiftyMicrocap250":     "MOSMALL250.NS",
         },
         "INDEX_BENCHMARK": "^NSEI",
         "SYMBOL_FILE_MAP": {
@@ -127,13 +136,13 @@ class Config:
                 loaded = json.load(fh)
             _deep_update(self._data, loaded)
             self._file_name = target
-            print(f"[Config] Loaded from '{target}'.")
+            logger.info(f"[Config] Loaded from '{target}'.")
         except FileNotFoundError:
-            print(f"[Config] '{target}' not found – using defaults.")
+            logger.debug(f"[Config] '{target}' not found – using defaults.")
         except json.JSONDecodeError as exc:
-            print(f"[Config] JSON error in '{target}': {exc} – using defaults.")
+            logger.warning(f"[Config] JSON error in '{target}': {exc} – using defaults.")
         except Exception as exc:
-            print(f"[Config] Unexpected error loading '{target}': {exc} – using defaults.")
+            logger.warning(f"[Config] Unexpected error loading '{target}': {exc} – using defaults.")
 
     def save(
         self,
@@ -159,14 +168,14 @@ class Config:
                 json.dump(data, fh, indent=4)
             self._file_name = target
             label = "minimal overrides" if minimal else "full snapshot"
-            print(f"[Config] Saved ({label}) to '{target}'.")
+            logger.info(f"[Config] Saved ({label}) to '{target}'.")
         except Exception as exc:
-            print(f"[Config] Error saving to '{target}': {exc}")
+            logger.error(f"[Config] Error saving to '{target}': {exc}")
 
     def reset(self) -> None:
         """Restore all values to built-in defaults."""
         self._reset_to_defaults()
-        print("[Config] Reset to built-in defaults.")
+        logger.info("[Config] Reset to built-in defaults.")
 
     def as_dict(self) -> Dict[str, Any]:
         """Return a shallow copy of the config dict."""

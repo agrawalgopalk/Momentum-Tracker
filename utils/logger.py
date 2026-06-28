@@ -13,9 +13,9 @@ Entry point detection
   Called from dashboard.py   →  writes to momentum_dashboard.log
   Called from anywhere else  →  writes to momentum.log
 
-All log files live in momentum_tracker/mps_cache/.
-All entry points share the same format and level.
-Internal modules (momentum_tracker/src/) replace print() with get_logger(__name__).
+# All log files live in log/ folder at the project root.
+# All entry points share the same format and level.
+# Internal modules (momentum_tracker/src/) replace print() with get_logger(__name__).
 """
 
 from __future__ import annotations
@@ -28,8 +28,9 @@ from pathlib import Path
 # Log directory
 # ─────────────────────────────────────────────────────────────────────────────
 
-_CACHE_DIR = Path(__file__).resolve().parent / "momentum_tracker" / "mps_cache"
-_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_LOG_DIR = PROJECT_ROOT / "log"
+_LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Detect entry point → choose log file name
@@ -43,11 +44,11 @@ def _detect_log_file() -> Path:
     entry = Path(sys.argv[0]).stem.lower() if sys.argv else ""
 
     if "scheduler" in entry:
-        return _CACHE_DIR / "momentum_scheduler.log"
-    elif "dashboard" in entry or "streamlit" in entry:
-        return _CACHE_DIR / "momentum_dashboard.log"
+        return _LOG_DIR / "scheduler.log"
+    elif "dashboard" in entry or "streamlit" in entry or "manage" in entry:
+        return _LOG_DIR / "momentum_dashboard.log"
     else:
-        return _CACHE_DIR / "momentum.log"
+        return _LOG_DIR / "momentum.log"
 
 
 _LOG_FILE = _detect_log_file()

@@ -1,0 +1,201 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Run Momentum Scan - Momentum Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Run Momentum Scan</h1>
+        <p class="page-subtitle">Trigger CrewAI quantitative pipelines and generate trading recommendations</p>
+    </div>
+</div>
+
+<div class="form-panel" style="max-width: 600px; margin: 0 auto 30px auto;">
+    <div class="form-title">1. Fetch Quantitative Momentum Scores</div>
+    
+    <!-- Static Form (Shown when NOT running) -->
+    <div id="scan-form-container" style="{% if scan_running %}display: none;{% endif %}">
+        <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+            Select an index category to retrieve raw stock data from Yahoo Finance and calculate WMS momentum ranks instantly.
+        </p>
+        
+        <form method="POST" id="scan-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="fetch_ranks">
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="category">Select Index Universe</label>
+                <select name="category" id="category" style="width: 100%;">
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }} (NSE India)</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 14px;">
+                <i class="fa-solid fa-play"></i> Fetch Momentum Ranks
+            </button>
+        </form>
+    </div>
+    
+    <!-- Loading Container (Shown when running) -->
+    <div id="scan-loading-container" style="{% if not scan_running %}display: none;{% endif %}">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <h3 style="color: #ffffff; font-size: 18px;">Analysis In Progress</h3>
+            <p style="color: var(--text-secondary); max-width: 400px; line-height: 1.6;" id="loading-message">
+                Running multi-agent analysis for <strong id="active-category" style="color: var(--primary);">{{ scan_category }}</strong>. The CrewAI agent pipeline is evaluating charts, tracking FII/DII flow records, and synthesizing fundamental catalysts.
+                <br><br>
+                This takes <strong>1–3 minutes</strong>. You can navigate away from this page or check back later.
+            </p>
+        </div>
+    </div>
+</div>
+
+{% if scan_results and not scan_running %}
+<!-- Stage 2 Form (Shown after fetching ranks) -->
+<div class="form-panel" style="max-width: 600px; margin: 0 auto 30px auto;">
+    <div class="form-title">2. Select Stocks for Multi-Agent Deep-Dive</div>
+    <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+        Select one or more high-momentum stocks to analyze using the Technical Chart, FII/DII Flow, and Fundamental Sentiment agents.
+    </p>
+    
+    <form method="POST" id="analysis-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="run_analysis">
+        
+        <div class="table-container" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+                <thead>
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.2);">
+                        <th style="padding: 12px; width: 40px;"><input type="checkbox" id="select-all-stocks" checked onclick="toggleAllStocks(this)"></th>
+                        <th style="padding: 12px;">Symbol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in scan_results %}
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                        <td style="padding: 12px;"><input type="checkbox" name="selected_stocks" value="{{ row.Symbol }}" checked class="stock-checkbox"></td>
+                        <td style="padding: 12px; font-weight: 700; color: #ffffff;">{{ row.Symbol }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin-bottom: 20px; background: rgba(255, 255, 255, 0.02); padding: 16px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <label style="display: block; font-weight: 600; margin-bottom: 12px; color: #ffffff; font-size: 14px;">Configure Specialist Agents</label>
+            
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #e5e7eb; font-size: 14px;">
+                    <input type="checkbox" name="run_technical" value="yes" checked style="accent-color: var(--primary);">
+                    <span>Technical Chart Analyst</span>
+                </label>
+                
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #e5e7eb; font-size: 14px;">
+                    <input type="checkbox" name="run_fii_dii" value="yes" checked style="accent-color: var(--primary);">
+                    <span>FII / DII Flow Analyst</span>
+                </label>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #10b981, #059669); border-color: #10b981;">
+            <i class="fa-solid fa-brain"></i> Run Multi-Agent Deep-Dive
+        </button>
+    </form>
+</div>
+{% endif %}
+
+<!-- Output Logs Panel (Visible during or after running) -->
+<div class="form-panel" id="scan-status-panel" style="max-width: 800px; margin: 0 auto; display: none;">
+    <div class="form-title" id="status-title">Scan Result</div>
+    <div id="scan-status-message"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const statusUrl = "{% url 'scan_status' %}";
+    let pollInterval = null;
+    
+    function toggleAllStocks(source) {
+        const checkboxes = document.getElementsByClassName('stock-checkbox');
+        for (let i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = source.checked;
+        }
+    }
+    
+    function checkStatus() {
+        fetch(statusUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.running) {
+                    // Update state to running
+                    document.getElementById('scan-form-container').style.display = 'none';
+                    document.getElementById('scan-loading-container').style.display = 'block';
+                    document.getElementById('active-category').textContent = data.category;
+                    document.getElementById('scan-status-panel').style.display = 'none';
+                    
+                    // Hide stage 2 form if it exists
+                    const stage2 = document.getElementById('analysis-form');
+                    if (stage2) {
+                        stage2.parentElement.style.display = 'none';
+                    }
+                    
+                    if (!pollInterval) {
+                        pollInterval = setInterval(checkStatus, 3000);
+                    }
+                } else {
+                    // Stopped running
+                    if (pollInterval) {
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                        
+                        // Show success message if we were polling and succeeded
+                        if (!data.error) {
+                            const statusPanel = document.getElementById('scan-status-panel');
+                            const statusTitle = document.getElementById('status-title');
+                            const statusMsg = document.getElementById('scan-status-message');
+                            statusPanel.style.display = 'block';
+                            statusTitle.textContent = "✅ Analysis Completed";
+                            
+                            if (data.report) {
+                                statusMsg.innerHTML = `<div class="analysis-report" style="color: #e5e7eb; line-height: 1.6; text-align: left; max-height: 600px; overflow-y: auto; padding: 16px; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; background: rgba(17, 24, 30, 0.4);">${data.report}</div>`;
+                            } else {
+                                statusMsg.innerHTML = `<p style="color: var(--primary); line-height: 1.5;">The analysis completed successfully! Recommendations have been added to database. You can check findings in <a href="{% url 'history' %}" style="color: #00b0ff; text-decoration: underline;">Scan History</a>.</p>`;
+                            }
+                        }
+                    }
+                    
+                    // Show error message on load or after polling if error exists
+                    const statusPanel = document.getElementById('scan-status-panel');
+                    if (data.error) {
+                        const statusTitle = document.getElementById('status-title');
+                        const statusMsg = document.getElementById('scan-status-message');
+                        statusPanel.style.display = 'block';
+                        statusTitle.textContent = "❌ Analysis Failed";
+                        statusMsg.innerHTML = `<p style="color: var(--red); line-height: 1.5;">An error occurred during execution:<br><strong>${data.error}</strong></p>`;
+                    } else if (!pollInterval && !data.success) {
+                        // If not polling, not running, and no error/no success, hide panel
+                        statusPanel.style.display = 'none';
+                    }
+                    
+                    document.getElementById('scan-form-container').style.display = 'block';
+                    document.getElementById('scan-loading-container').style.display = 'none';
+                }
+            })
+            .catch(err => {
+                console.error("Error polling scan status:", err);
+            });
+    }
+    
+    // Start polling immediately if scan is marked running initially
+    {% if scan_running %}
+    pollInterval = setInterval(checkStatus, 3000);
+    {% endif %}
+    
+    // Add check status call on load
+    document.addEventListener('DOMContentLoaded', function() {
+        checkStatus();
+    });
+</script>
+{% endblock %}

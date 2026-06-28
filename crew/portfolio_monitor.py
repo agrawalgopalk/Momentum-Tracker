@@ -62,7 +62,7 @@ log = get_logger(__name__)
 # initialised when run_monitor() is actually called, not on every import.
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _build_agent_and_tasks(held: list[dict]) -> tuple[Task, Task]:
+def _build_agent_and_tasks(held: list[dict], provider: str = None) -> tuple[Agent, Agent, Task, Task]:
     """
     Build the two monitoring tasks from the current held-positions list.
 
@@ -79,8 +79,8 @@ def _build_agent_and_tasks(held: list[dict]) -> tuple[Task, Task]:
     as_of      = datetime.now().strftime("%Y-%m-%d %H:%M IST")
 
     # ── Agents (created here so LLM init happens only when called) ────────────
-    llm_scanner    = LLMConfig.get_llm(role="scanner")
-    llm_classifier = LLMConfig.get_llm(role="analyst")
+    llm_scanner    = LLMConfig.get_llm(role="scanner", provider=provider)
+    llm_classifier = LLMConfig.get_llm(role="analyst", provider=provider)
 
     news_scanner = Agent(
         role="Portfolio News Scanner",
@@ -97,7 +97,7 @@ def _build_agent_and_tasks(held: list[dict]) -> tuple[Task, Task]:
         llm=llm_scanner,
         tools=[search_tool],
         verbose=True,
-        use_native_tools=False  # <--- FORCE AGENT TO USE STANDARD REACT/TOOL FORMATTING
+        use_native_tools=False,  # <--- FORCE AGENT TO USE STANDARD REACT/TOOL FORMATTING
         allow_delegation=False,
         system_prompt="You are an AI with access to the 'web_search' tool. "
                       "When you need to search the web, you MUST invoke the tool directly. "
@@ -295,27 +295,14 @@ End with a 2-sentence narrative on the overall portfolio health.
 # Public entry point
 # ─────────────────────────────────────────────────────────────────────────────
 
-def run_monitor(held: list[dict[str, Any]]) -> str:
+def _run_monitor_impl(held: list[dict[str, Any]], provider: str = None) -> str:
     """
-    Run the portfolio monitoring crew for the given held positions.
-
-    Parameters
-    ----------
-    held : list of dicts
-        Each dict must have:
-          symbol     : str  – e.g. "RELIANCE.NS"
-          buy_price  : float – your average cost price in INR
-          qty        : int   – number of shares held
-
-    Returns
-    -------
-    str
-        The full alert report as a formatted string.
+    Run the portfolio monitoring crew with a specific LLM provider.
     """
     if not held:
         return "No held positions provided."
 
-    news_scanner, alert_classifier, task_news, task_classify = _build_agent_and_tasks(held)
+    news_scanner, alert_classifier, task_news, task_classify = _build_agent_and_tasks(held, provider=provider)
 
     monitor_crew = Crew(
         agents=[news_scanner, alert_classifier],
@@ -332,6 +319,43 @@ def run_monitor(held: list[dict[str, Any]]) -> str:
         + "═" * 65 + "\n"
     )
     return header + str(result)
+
+
+def run_monitor(held: list[dict[str, Any]]) -> str:
+    """
+    Run the portfolio monitoring crew for the given held positions,
+    with an automatic try-catch trial fallback between Gemini and Groq.
+
+    Parameters
+    ----------
+    held : list of dicts
+        Each dict must have:
+          symbol     : str  – e.g. "RELIANCE.NS"
+          buy_price  : float – your average cost price in INR
+          qty        : int   – number of shares held
+
+    Returns
+    -------
+    str
+        The full alert report as a formatted string.
+    """
+    import os
+    from dotenv import load_dotenv, find_dotenv
+    load_dotenv(find_dotenv(), override=True)
+
+    primary = os.getenv("LLM_PROVIDER", "gemini")
+    fallback = "groq" if primary == "gemini" else "gemini"
+
+    try:
+        log.info(f"[Monitor] Running portfolio monitor using primary provider: {primary.upper()}")
+        return _run_monitor_impl(held, provider=primary)
+    except Exception as e:
+        log.warning(f"[Monitor] Primary provider {primary.upper()} failed with error: {e}. Falling back to {fallback.upper()} instantly...")
+        try:
+            return _run_monitor_impl(held, provider=fallback)
+        except Exception as fe:
+            log.error(f"[Monitor] Fallback provider {fallback.upper()} also failed. Error: {fe}")
+            raise fe
 
 
 # ─────────────────────────────────────────────────────────────────────────────

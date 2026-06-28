@@ -1,0 +1,398 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Rebalance Assistant – Comparison tool{% endblock %}
+
+{% block extra_head %}
+<style>
+    .rebalance-container {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        color: #f3f4f6;
+    }
+    
+    .header-section h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(135deg, #34d399, #10b981);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .glass-card {
+        background: rgba(17, 24, 39, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .top-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    @media (min-width: 1024px) {
+        .top-layout {
+            grid-template-columns: 2fr 1fr;
+        }
+    }
+    
+    .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-height: 380px;
+        overflow-y: auto;
+        padding-right: 8px;
+    }
+    .history-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        padding: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s ease;
+    }
+    .history-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #10b981;
+    }
+    .history-date {
+        font-size: 13px;
+        color: #e5e7eb;
+        font-weight: 600;
+    }
+    .history-actions {
+        display: flex;
+        gap: 8px;
+    }
+    .history-btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .btn-view {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    .btn-view:hover {
+        background: #3b82f6;
+        color: #ffffff;
+    }
+
+    .form-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    @media (min-width: 768px) {
+        .form-layout {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #9ca3af;
+    }
+
+    .file-input {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        padding: 12px;
+        color: #e5e7eb;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .file-input:hover {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.03);
+    }
+
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        user-select: none;
+    }
+
+    .checkbox-container input {
+        width: 18px;
+        height: 18px;
+        accent-color: #10b981;
+        cursor: pointer;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #ffffff;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .download-btn {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .download-btn:hover {
+        background: #10b981;
+        border-color: #10b981;
+    }
+
+    .premium-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 14px;
+        margin-top: 12px;
+    }
+
+    .premium-table th {
+        padding: 14px 16px;
+        font-weight: 600;
+        color: #9ca3af;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .premium-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: #e5e7eb;
+    }
+
+    .action-row-BUY {
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .action-row-SELL {
+        background: rgba(239, 68, 68, 0.05);
+    }
+
+    .action-badge {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 12px;
+        display: inline-block;
+        text-align: center;
+        width: 60px;
+    }
+
+    .badge-BUY { background: rgba(16, 185, 129, 0.18); color: #34d399; }
+    .badge-HOLD { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
+    .badge-SELL { background: rgba(239, 68, 68, 0.18); color: #f87171; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rebalance-container">
+    
+    <div class="header-section">
+        <h1>Portfolio Rebalance Assistant</h1>
+        <p style="color: #9ca3af; margin: 4px 0 0 0;">Compare current portfolio with recommendation sheets to generate BUY/HOLD/SELL rebalance reports</p>
+    </div>
+
+    <!-- Top Configuration & History Panel -->
+    <div class="top-layout">
+        <!-- Upload & Config Panel -->
+        <div class="glass-card">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-layout">
+                    
+                    <!-- Index Category Selector -->
+                    <div class="form-group">
+                        <label for="category">Index Category (for Live DB Scan)</label>
+                        <select name="category" id="category" class="file-input" style="height: 48px; border-style: solid; font-size: 14px; background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15); color: #fff; border-radius: 10px; padding: 12px; width: 100%;">
+                            {% for cat in categories %}
+                            <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %} style="background: #111827;">{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Target Size Input -->
+                    <div class="form-group">
+                        <label for="target_size">Target Portfolio Size (Top N)</label>
+                        <input type="number" name="target_size" id="target_size" class="file-input" style="font-size: 14px; background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15); color: #fff; border-radius: 10px; padding: 12px; width: 100%; box-sizing: border-box;" value="{{ target_size }}" min="1">
+                    </div>
+
+                    <!-- Portfolio Source -->
+                    <div class="form-group">
+                        <label>Portfolio Positions Source</label>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="use_db" id="use_db_checkbox" checked onchange="togglePortfolioUpload(this)">
+                                <span>Use Database Live Holdings</span>
+                            </label>
+                            <div id="portfolio_upload_div" style="display: none; flex-direction: column; gap: 6px;">
+                                <span style="font-size: 13px; color: #9ca3af;">Or upload Portfolio Excel/CSV file:</span>
+                                <input type="file" name="portfolio_file" class="file-input" accept=".xlsx,.xls,.csv">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recommendations Source -->
+                    <div class="form-group">
+                        <label for="reco_file">Last Recommendation File (Excel/CSV)</label>
+                        <input type="file" name="reco_file" id="reco_file" class="file-input" accept=".xlsx,.xls,.csv">
+                        <span style="font-size: 12px; color: #9ca3af;">Optional for Pure Rebalance, Required for Comparison</span>
+                    </div>
+                    
+                </div>
+                
+                <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+                    <button type="submit" class="submit-btn">
+                        <i class="fa-solid fa-scale-balanced"></i> Run Rebalance Analysis
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- History Panel -->
+        <div class="glass-card" style="display: flex; flex-direction: column; gap: 16px;">
+            <h2 style="margin: 0; font-size: 18px; color: #ffffff;"><i class="fa-solid fa-clock-rotate-left"></i> Run History</h2>
+            <div class="history-list">
+                {% for run in history %}
+                <div class="history-item">
+                    <span class="history-date">{{ run.run_at|slice:":16" }}</span>
+                    <div class="history-actions">
+                        <a href="?run_id={{ run.id }}" class="history-btn btn-view">
+                            <i class="fa-solid fa-eye"></i> View
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; color: #9ca3af; padding: 40px 0;">
+                    <i class="fa-solid fa-history" style="font-size: 32px; margin-bottom: 8px;"></i>
+                    <p style="margin: 0; font-size: 13px;">No history logged yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% if report_data %}
+    <!-- Report Action Results -->
+    <div class="glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 style="margin: 0; font-size: 20px;"><i class="fa-solid fa-file-invoice"></i> Rebalance Action Report</h2>
+            {% if download_url %}
+            <a href="{{ download_url }}" class="download-btn">
+                <i class="fa-solid fa-download"></i> Download Excel Report
+            </a>
+            {% endif %}
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Action</th>
+                        <th>WMS Score</th>
+                        <th>Prev WMS</th>
+                        <th>Prev Rank</th>
+                        <th>P-Score %</th>
+                        <th>V-Score %</th>
+                        <th>Sector</th>
+                        <th>Holdings Details</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in report_data %}
+                    <tr class="action-row-{{ row.Action }}">
+                        <td style="font-weight: 700;">{{ row.Symbol }}</td>
+                        <td>
+                            <span class="action-badge badge-{{ row.Action }}">{{ row.Action }}</span>
+                        </td>
+                        <td style="font-weight: 700; color: #3b82f6;">{{ row.WMS }}</td>
+                        <td>{% if row.Prev_WMS %}{{ row.Prev_WMS }}{% else %}–{% endif %}</td>
+                        <td>{% if row.Prev_Rank %}{{ row.Prev_Rank }}{% else %}–{% endif %}</td>
+                        <td>{{ row.P_Pct|floatformat:1 }}%</td>
+                        <td>{{ row.V_Pct|floatformat:1 }}%</td>
+                        <td>{{ row.Sector }}</td>
+                        <td>
+                            {% if row.Shares > 0 %}
+                            {{ row.Shares }} sh @ ₹{{ row.Avg_Cost|floatformat:2 }}
+                            {% else %}
+                            –
+                            {% endif %}
+                        </td>
+                        <td style="font-size: 13px; color: #d1d5db;">{{ row.Reason }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function togglePortfolioUpload(checkbox) {
+        const uploadDiv = document.getElementById("portfolio_upload_div");
+        if (checkbox.checked) {
+            uploadDiv.style.display = "none";
+        } else {
+            uploadDiv.style.display = "flex";
+        }
+    }
+</script>
+{% endblock %}

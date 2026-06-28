@@ -12,9 +12,12 @@ class LLMConfig:
     print(f"[DEBUG] Current Working Directory: {os.getcwd()}")
 
     @classmethod
-    def get_llm(cls, role="general"):
+    def get_llm(cls, role="general", provider=None):
+        from dotenv import load_dotenv, find_dotenv
+        load_dotenv(find_dotenv(), override=True)
+        
         # Default to local if provider is None
-        current_provider = os.getenv("LLM_PROVIDER", "local")
+        current_provider = provider or os.getenv("LLM_PROVIDER", "local")
         
         if current_provider == "groq":
             print(f"[DEBUG] Initializing Groq with model: {os.getenv('GROQ_MODEL')}")

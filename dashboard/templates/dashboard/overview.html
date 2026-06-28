@@ -1,0 +1,242 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Portfolio Overview - Momentum Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Portfolio Overview</h1>
+        <p class="page-subtitle">Your active positions and alert status at a glance</p>
+    </div>
+    <div>
+        <form method="POST" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" name="run_monitor" class="btn-secondary">
+                <i class="fa-solid fa-sync"></i> Run Monitor Now
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- KPI Grid -->
+<div class="card-grid">
+    <div class="kpi-card">
+        <div class="kpi-title">Open Positions</div>
+        <div class="kpi-value">{{ open_count }}</div>
+    </div>
+    <div class="kpi-card kpi-red">
+        <div class="kpi-title">🔴 RED Alerts</div>
+        <div class="kpi-value">{{ red_count }}</div>
+    </div>
+    <div class="kpi-card kpi-yellow">
+        <div class="kpi-title">🟡 YELLOW Alerts</div>
+        <div class="kpi-value">{{ yellow_count }}</div>
+    </div>
+    <div class="kpi-card kpi-green">
+        <div class="kpi-title">🟢 GREEN Alerts</div>
+        <div class="kpi-value">{{ green_count }}</div>
+    </div>
+</div>
+
+<!-- Main Split Layout -->
+{% if positions %}
+<div class="split-layout">
+    <!-- Left Pane: Position Cards -->
+    <div class="split-left">
+        <h2 style="font-size: 18px; margin-bottom: 20px; color: #ffffff;">Active Positions</h2>
+        
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            {% for pos in positions %}
+            <div class="position-card {% if pos.alert_level == 'RED' %}red-alert{% elif pos.alert_level == 'YELLOW' %}yellow-alert{% elif pos.alert_level == 'GREEN' %}green-alert{% endif %}">
+                <div class="position-card-header">
+                    <div class="position-symbol">{{ pos.symbol }}</div>
+                    <div>
+                        {% if pos.alert_level == 'RED' %}
+                        <span class="badge badge-red"><i class="fa-solid fa-circle-exclamation"></i> RED</span>
+                        {% elif pos.alert_level == 'YELLOW' %}
+                        <span class="badge badge-yellow"><i class="fa-solid fa-triangle-exclamation"></i> YELLOW</span>
+                        {% elif pos.alert_level == 'GREEN' %}
+                        <span class="badge badge-green"><i class="fa-solid fa-circle-check"></i> GREEN</span>
+                        {% else %}
+                        <span class="badge badge-gray">No alert</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="position-metrics">
+                    <div class="metric-item">
+                        <span class="metric-label">Buy Price</span>
+                        <span class="metric-val">₹{{ pos.buy_price|floatformat:2 }}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Qty</span>
+                        <span class="metric-val">{{ pos.qty }}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Added</span>
+                        <span class="metric-val">{{ pos.added_at }}</span>
+                    </div>
+                </div>
+                
+                <!-- Position Alert History Table -->
+                {% if pos.history %}
+                <div style="margin-bottom: 15px;">
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600;">ALERT HISTORY (Click row for details)</div>
+                    <div class="table-container" style="margin-bottom: 0; border-radius: 8px;">
+                        <table style="font-size: 13px;">
+                            <thead>
+                                <tr>
+                                    <th style="padding: 8px 12px;">Level</th>
+                                    <th style="padding: 8px 12px;">Confidence</th>
+                                    <th style="padding: 8px 12px;">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alert in pos.history %}
+                                <tr class="selectable-row" onclick="selectAlertRow(this, '{{ pos.symbol }}', '{{ alert.id }}')" id="row-{{ alert.id }}">
+                                    <td style="padding: 8px 12px;">
+                                        {% if alert.alert_level == 'RED' %}
+                                        <span style="color: var(--red);">🔴 RED</span>
+                                        {% elif alert.alert_level == 'YELLOW' %}
+                                        <span style="color: var(--yellow);">🟡 YELLOW</span>
+                                        {% else %}
+                                        <span style="color: var(--primary);">🟢 GREEN</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="padding: 8px 12px;">{{ alert.confidence|default:"N/A" }}</td>
+                                    <td style="padding: 8px 12px;">{{ alert.alerted_at|slice:":10" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% else %}
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">No alert history found for this position.</p>
+                {% endif %}
+                
+                <!-- Action Link to Transactions Page -->
+                <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px; display: flex; justify-content: flex-end;">
+                    <a href="{% url 'trade' %}?symbol={{ pos.symbol }}" class="btn-secondary" style="padding: 6px 12px; font-size: 13px; color: var(--red); background: rgba(255, 82, 82, 0.08); text-decoration: none; border-radius: 4px; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-wallet"></i> Go to Execute Trades to Close
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Right Pane: Detail View -->
+    <div class="split-right">
+        <h2 style="font-size: 18px; margin-bottom: 20px; color: #ffffff;">Detail View</h2>
+        
+        <div class="details-panel" id="details-panel">
+            <div class="details-placeholder" id="details-placeholder">
+                <span class="placeholder-icon"><i class="fa-solid fa-mouse-pointer"></i></span>
+                <p>Select a row from any alert table to view full alert details here.</p>
+            </div>
+            
+            <div id="details-content" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 id="detail-symbol" style="font-size: 24px; font-weight: 700; color: #ffffff;"></h3>
+                    <span id="detail-level" class="badge"></span>
+                </div>
+                
+                <div class="position-metrics" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 20px;">
+                    <div class="metric-item">
+                        <span class="metric-label">Confidence</span>
+                        <span class="metric-val" id="detail-confidence"></span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Date Alerted</span>
+                        <span class="metric-val" id="detail-date"></span>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase;">Trigger Summary</div>
+                    <div style="padding: 12px 16px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid var(--border-color); line-height: 1.5; font-size: 14px;" id="detail-trigger"></div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase;">Recommended Action</div>
+                    <div style="line-height: 1.5; font-size: 14px;" id="detail-action"></div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase;">Risk Flags</div>
+                    <div style="line-height: 1.5; font-size: 14px; color: var(--yellow);" id="detail-risk"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="form-panel" style="text-align: center; padding: 60px 20px;">
+    <i class="fa-solid fa-folder-open" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 16px;"></i>
+    <h3 style="font-size: 18px; color: #ffffff; margin-bottom: 8px;">No Open Positions</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 24px;">Add stock positions to track their momentum and receive risk alerts.</p>
+    <a href="{% url 'trade' %}" class="btn-primary"><i class="fa-solid fa-plus"></i> Go to Execute Trades</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Create a clientside database of alerts for quick loading
+    const alertDb = {};
+    
+    {% for pos in positions %}
+        {% for alert in pos.history %}
+            alertDb["{{ alert.id }}"] = {
+                symbol: "{{ pos.symbol }}",
+                level: "{{ alert.alert_level }}",
+                confidence: "{{ alert.confidence|default:'N/A' }}",
+                date: "{{ alert.alerted_at|slice:':16' }}",
+                trigger: `{{ alert.trigger|default:"No trigger description provided."|escapejs }}`,
+                action: `{{ alert.action|default:"No action recommended."|escapejs }}`,
+                risk: `{{ alert.risk_flags|default:"None"|escapejs }}`
+            };
+        {% endfor %}
+    {% endfor %}
+    
+    function selectAlertRow(rowElement, symbol, alertId) {
+        // Remove 'selected' class from all rows
+        document.querySelectorAll('.selectable-row').forEach(row => {
+            row.classList.remove('selected');
+        });
+        
+        // Add 'selected' to current row
+        rowElement.classList.add('selected');
+        
+        // Load data
+        const data = alertDb[alertId];
+        if (!data) return;
+        
+        // Update details panel
+        document.getElementById('details-placeholder').style.display = 'none';
+        document.getElementById('details-content').style.display = 'block';
+        
+        document.getElementById('detail-symbol').textContent = data.symbol;
+        document.getElementById('detail-confidence').textContent = data.confidence;
+        document.getElementById('detail-date').textContent = data.date;
+        document.getElementById('detail-trigger').textContent = data.trigger;
+        document.getElementById('detail-action').textContent = data.action;
+        document.getElementById('detail-risk').textContent = data.risk;
+        
+        const badge = document.getElementById('detail-level');
+        badge.className = 'badge';
+        badge.innerHTML = '';
+        if (data.level === 'RED') {
+            badge.classList.add('badge-red');
+            badge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> RED';
+        } else if (data.level === 'YELLOW') {
+            badge.classList.add('badge-yellow');
+            badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> YELLOW';
+        } else {
+            badge.classList.add('badge-green');
+            badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> GREEN';
+        }
+    }
+</script>
+{% endblock %}

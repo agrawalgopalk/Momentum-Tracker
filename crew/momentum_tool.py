@@ -80,25 +80,22 @@ class MomentumBackboneTool(BaseTool):
     # Entry point
     # ─────────────────────────────────────────────────────────────────────
 
-    # def _run(self, strategy_params: str = "{}") -> str:
-    def _run(self, category: str, top_n: int) -> str:
+    def _run(self, category: str = "Nifty100", top_n: int = 20) -> str:
         """
         Execute the momentum backbone and return a formatted results string.
-
-        Parameters
-        ----------
-        strategy_params : str
-            JSON object string or plain category name.
         """
         try:
-            # params   = self._parse_params(strategy_params)
-            # category = params["category"]
-            # top_n    = params["top_n"]
             # ── Bootstrap system components ────────────────────────────
             config, db, strategy, loader, selector = self._init_components()
 
-            # ── Validate category ──────────────────────────────────────
+            # Handle parsing if single positional argument is passed as JSON string or plain category string
             available = loader.available_categories()
+            if category.strip().startswith("{") or category not in available:
+                params = self._parse_params(category)
+                category = params["category"]
+                top_n = params["top_n"]
+
+            # ── Validate category ──────────────────────────────────────
             if category not in available:
                 return (
                     f"[MomentumTool] Unknown category '{category}'. "
@@ -109,9 +106,6 @@ class MomentumBackboneTool(BaseTool):
             
             if top_results.empty:
                 return f"No stocks found for category '{category}' that pass filters."
-            # import pandas as pd
-            # log.info("Columns available:", top_results.columns.tolist())
-            # log.info(top_results[["Symbol","RSI_Raw","MFI_Raw","CCI_Raw"]].head(3))
 
             # ── Format output ──────────────────────────────────────────
             return self._format_output(
@@ -207,11 +201,11 @@ class MomentumBackboneTool(BaseTool):
 
         # ── Plain imports ────────────────────────────────────────────────
         from config import Config                              # noqa: E402
-        from data_downloader import DataDownloaderFactory     # noqa: E402
-        from database_manager import DatabaseManager          # noqa: E402
-        from momentum_strategy import MomentumStrategy        # noqa: E402
-        from symbol_loader import SymbolLoader                # noqa: E402
-        from stock_selector import StockSelector              # noqa: E402
+        from data.data_downloader import DataDownloaderFactory     # noqa: E402
+        from data.stock_database_manager import StockDatabaseManager  # noqa: E402
+        from strategy.momentum_strategy import MomentumStrategy        # noqa: E402
+        from data.symbol_loader import SymbolLoader                # noqa: E402
+        from reporting.stock_selector import StockSelector              # noqa: E402
         
 
         # ── Config: load from momentum_tracker/ if config.json exists ───
@@ -219,15 +213,18 @@ class MomentumBackboneTool(BaseTool):
         config = Config(str(config_json) if config_json.exists() else "config.json")
 
         # ── Override relative paths with absolute ones ───────────────────
-        # SYMBOLS_DIR: default is "data/symbols" which is relative to cwd.
-        # Patch it to the absolute path so SymbolLoader finds the CSVs
-        # regardless of where the script is run from.
-        config["DATA_CONFIG"]["SYMBOLS_DIR"] = str(_pkg / "data" / "symbols")
+        symbols_dir = config["DATA_CONFIG"].get("SYMBOLS_DIR", "data/symbols")
+        if not Path(symbols_dir).is_absolute():
+            config["DATA_CONFIG"]["SYMBOLS_DIR"] = str(_root / symbols_dir)
 
-        resolved_cache = str(_pkg / "mps_cache")
+        cache_dir = config.get("SYSTEM_CONFIG", {}).get("CACHE_DIR", "data_cache")
+        if not Path(cache_dir).is_absolute():
+            resolved_cache = str(_root / cache_dir)
+        else:
+            resolved_cache = cache_dir
 
         downloader = DataDownloaderFactory.create("yahoo")
-        db         = DatabaseManager(config, downloader, cache_dir=resolved_cache)
+        db         = StockDatabaseManager(config, downloader, cache_dir=resolved_cache)
         strategy   = MomentumStrategy(config, db)
         loader     = SymbolLoader(config)
         selector  = StockSelector(config, db, strategy, None)

@@ -1,0 +1,305 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Scan History & Reports - Momentum Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Scan History & Reports</h1>
+        <p class="page-subtitle">Track quantitative score progressions, browse analyst findings, and generate on-demand assessments</p>
+    </div>
+</div>
+
+<!-- Mode Navigation Tabs -->
+<div style="display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px; flex-wrap: wrap;">
+    <a href="?view_type=index" style="padding: 10px 20px; font-weight: 600; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; color: {% if view_type == 'index' %}#ffffff{% else %}var(--text-secondary){% endif %}; background: {% if view_type == 'index' %}var(--primary){% else %}transparent{% endif %}; border: 1px solid {% if view_type == 'index' %}var(--primary){% else %}rgba(255,255,255,0.08){% endif %}; font-size: 14px;">
+        <i class="fa-solid fa-list-ol"></i> Index Category View
+    </a>
+    <a href="?view_type=portfolio" style="padding: 10px 20px; font-weight: 600; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; color: {% if view_type == 'portfolio' %}#ffffff{% else %}var(--text-secondary){% endif %}; background: {% if view_type == 'portfolio' %}var(--primary){% else %}transparent{% endif %}; border: 1px solid {% if view_type == 'portfolio' %}var(--primary){% else %}rgba(255,255,255,0.08){% endif %}; font-size: 14px;">
+        <i class="fa-solid fa-briefcase"></i> Portfolio Stocks View
+    </a>
+    <a href="?view_type=search" style="padding: 10px 20px; font-weight: 600; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; color: {% if view_type == 'search' %}#ffffff{% else %}var(--text-secondary){% endif %}; background: {% if view_type == 'search' %}var(--primary){% else %}transparent{% endif %}; border: 1px solid {% if view_type == 'search' %}var(--primary){% else %}rgba(255,255,255,0.08){% endif %}; font-size: 14px;">
+        <i class="fa-solid fa-magnifying-glass"></i> Any Ticker Search (On-Demand)
+    </a>
+</div>
+
+<!-- Category View Selection Form -->
+{% if view_type == 'index' %}
+<div class="form-panel" style="margin-bottom: 24px;">
+    <form method="GET" id="report-filter-form" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end;">
+        <input type="hidden" name="view_type" value="index">
+        <div class="form-group" style="flex: 1; min-width: 180px; margin-bottom: 0;">
+            <label for="category">Index Category</label>
+            <select name="category" id="category" onchange="document.getElementById('report_id').value=''; this.form.submit();">
+                {% for cat in categories %}
+                <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+            <label for="limit">Show Last N Runs</label>
+            <select name="limit" id="limit" onchange="document.getElementById('report_id').value=''; this.form.submit();">
+                <option value="5" {% if limit == 5 %}selected{% endif %}>5 runs</option>
+                <option value="10" {% if limit == 10 %}selected{% endif %}>10 runs</option>
+                <option value="15" {% if limit == 15 %}selected{% endif %}>15 runs</option>
+                <option value="30" {% if limit == 30 %}selected{% endif %}>30 runs</option>
+            </select>
+        </div>
+        
+        <div class="form-group" style="flex: 2; min-width: 250px; margin-bottom: 0;">
+            <label for="report_id">Select Scan Run (Ranks Source)</label>
+            <select name="report_id" id="report_id" onchange="this.form.submit()">
+                {% if reports %}
+                    {% for r in reports %}
+                    <option value="{{ r.id }}" {% if r.id == selected_report_id %}selected{% endif %}>
+                        {{ r.report_type }} - {{ r.created_at|slice:":16" }} (ID: {{ r.id }})
+                    </option>
+                    {% endfor %}
+                {% else %}
+                    <option value="">No reports found</option>
+                {% endif %}
+            </select>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<!-- Any Ticker Search Panel -->
+{% if view_type == 'search' %}
+<div class="form-panel" style="margin-bottom: 24px;">
+    <div class="form-title">Enter Ticker to Retrieve or Generate Analyst Report</div>
+    <form method="GET" style="display: flex; gap: 12px; align-items: flex-end;">
+        <input type="hidden" name="view_type" value="search">
+        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            <label for="search_query">Stock Symbol (e.g. RELIANCE, TCS, INFY)</label>
+            <input type="text" name="search_query" id="search_query" placeholder="Enter NSE stock ticker" value="{{ search_query }}" style="width: 100%; text-transform: uppercase;">
+        </div>
+        <button type="submit" class="btn-primary" style="padding: 13px 20px;">
+            <i class="fa-solid fa-search"></i> Load Report
+        </button>
+    </form>
+</div>
+{% endif %}
+
+{% if view_type == 'index' and not detail %}
+<div class="form-panel" style="text-align: center; padding: 60px 20px;">
+    <i class="fa-solid fa-hourglass-empty" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 16px;"></i>
+    <h3 style="font-size: 18px; color: #ffffff; margin-bottom: 8px;">No Scan History Found</h3>
+    <p style="color: var(--text-secondary);">No scan records exist for category "{{ selected_category }}" in database yet.</p>
+    <a href="{% url 'scan' %}" class="btn-primary" style="margin-top: 20px;"><i class="fa-solid fa-play"></i> Trigger a Scan</a>
+</div>
+{% elif view_type == 'portfolio' and not rows %}
+<div class="form-panel" style="text-align: center; padding: 60px 20px;">
+    <i class="fa-solid fa-briefcase" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 16px;"></i>
+    <h3 style="font-size: 18px; color: #ffffff; margin-bottom: 8px;">Portfolio is Empty</h3>
+    <p style="color: var(--text-secondary);">Add open positions inside the portfolio to see daily automated scanning reports.</p>
+    <a href="{% url 'trade' %}" class="btn-primary" style="margin-top: 20px;"><i class="fa-solid fa-plus"></i> Add Positions</a>
+</div>
+{% else %}
+
+<!-- Actions & Action Buttons Row (Index view only) -->
+{% if view_type == 'index' and selected_report_id %}
+<div style="display: flex; justify-content: flex-end; margin-bottom: 20px; gap: 12px; flex-wrap: wrap;">
+    <form method="POST" style="margin-bottom: 0;">
+        {% csrf_token %}
+        <input type="hidden" name="export_csv" value="1">
+        <input type="hidden" name="report_id" value="{{ selected_report_id }}">
+        <button type="submit" class="btn-secondary" style="padding: 10px 16px; font-size: 13px;">
+            <i class="fa-solid fa-file-csv"></i> Export CSV
+        </button>
+    </form>
+    
+    <a href="{% url 'download_report_excel' selected_report_id %}" class="btn-primary" style="text-decoration: none; padding: 10px 16px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px;">
+        <i class="fa-solid fa-file-excel"></i> Download Excel
+    </a>
+    
+    <form method="POST" onsubmit="return confirm('Are you sure you want to delete this report run? This cannot be undone.');" style="margin-bottom: 0;">
+        {% csrf_token %}
+        <input type="hidden" name="delete_report" value="1">
+        <input type="hidden" name="report_id" value="{{ selected_report_id }}">
+        <button type="submit" class="btn-secondary" style="color: var(--red); background: rgba(255, 82, 82, 0.08); border-color: rgba(255, 82, 82, 0.2); padding: 10px 16px;">
+            <i class="fa-solid fa-trash"></i> Delete Run
+        </button>
+    </form>
+</div>
+{% endif %}
+
+<!-- Split screen data displays -->
+<div class="split-layout">
+    <!-- Left Column: Table selection -->
+    <div class="split-left" style="{% if view_type == 'search' %}display: none;{% endif %}">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        {% if view_type == 'index' %}
+                        <th style="width: 70px;">Rank</th>
+                        <th>Symbol</th>
+                        <th>WMS</th>
+                        <th>Pick</th>
+                        {% else %}
+                        <th>Symbol</th>
+                        <th>Held Shares</th>
+                        <th>WMS</th>
+                        <th>Pick</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr class="selectable-row {% if row.symbol == selected_stock %}selected{% endif %}" 
+                        onclick="window.location.href='?view_type={{ view_type }}&category={{ selected_category }}&limit={{ limit }}&report_id={{ selected_report_id }}&symbol={{ row.symbol }}'">
+                        {% if view_type == 'index' %}
+                        <td style="font-weight: 700; color: var(--text-secondary);">#{{ row.rank }}</td>
+                        <td style="font-weight: 700; color: #ffffff;">{{ row.symbol }}</td>
+                        <td style="font-weight: 600; color: var(--primary);">{{ row.wms|floatformat:2 }}</td>
+                        {% else %}
+                        <td style="font-weight: 700; color: #ffffff;">{{ row.symbol }}</td>
+                        <td>{{ row.qty }} @ ₹{{ row.buy_price|floatformat:2 }}</td>
+                        <td style="font-weight: 600; color: var(--primary);">{% if row.wms %}{{ row.wms|floatformat:2 }}{% else %}–{% endif %}</td>
+                        {% endif %}
+                        <td>
+                            {% if row.classification == 'BUY' %}
+                            <span class="badge badge-green">BUY</span>
+                            {% elif row.classification == 'HOLD' %}
+                            <span class="badge badge-yellow">HOLD</span>
+                            {% elif row.classification == 'AVOID' %}
+                            <span class="badge badge-red">AVOID</span>
+                            {% else %}
+                            <span class="badge badge-gray">–</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 30px;">
+                            No rows matched the active filters.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Right Column: Detail analyst report display -->
+    <div class="split-right" style="{% if view_type == 'search' %}flex: 1; width: 100%; max-width: 100%;{% endif %}">
+        <div class="details-panel" style="height: auto;">
+            {% if selected_stock and analyst_report_html %}
+            <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h2 style="font-size: 22px; font-weight: 700; color: #ffffff;">Analyst Report for {{ selected_stock }}</h2>
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Last Analysis Date: {{ detail.created_at|slice:":16" }}</p>
+                </div>
+                
+                <form method="POST" style="margin-bottom: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="run_on_demand">
+                    <input type="hidden" name="symbol" value="{{ selected_stock }}">
+                    <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #10b981, #059669); border-color: #10b981; font-size: 13px; padding: 10px 16px;">
+                        <i class="fa-solid fa-rotate"></i> Regenerate Analysis
+                    </button>
+                </form>
+            </div>
+            
+            <div class="analyst-detail-content">
+                {{ analyst_report_html|safe }}
+            </div>
+            {% elif selected_stock %}
+            <div class="details-placeholder" style="padding: 40px 20px;">
+                <span class="placeholder-icon"><i class="fa-solid fa-circle-info"></i></span>
+                <h3>No Active Report Found for {{ selected_stock }}</h3>
+                <p style="max-width: 400px; margin-bottom: 20px;">We have quantitative stats but no generative multi-agent analysis report saved for this symbol yet.</p>
+                
+                <form method="POST" style="margin-bottom: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="run_on_demand">
+                    <input type="hidden" name="symbol" value="{{ selected_stock }}">
+                    <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #10b981, #059669); border-color: #10b981;">
+                        <i class="fa-solid fa-play"></i> Generate On-Demand Scan Report
+                    </button>
+                </form>
+            </div>
+            {% else %}
+            <div class="details-placeholder">
+                <span class="placeholder-icon"><i class="fa-solid fa-magnifying-glass-chart"></i></span>
+                <h3>Deep-Dive Analyst Insights</h3>
+                <p>Choose a stock ticker from the table on the left (or search a ticker above) to display its complete fundamental and technical evaluation.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- collapsable full raw logs detail -->
+{% if detail and detail.analyst_raw %}
+<details class="form-panel" style="margin-top: 30px; cursor: pointer;">
+    <summary style="font-size: 15px; font-weight: 600; color: var(--primary); outline: none; padding: 4px;">View Full Raw Analyst Report Text</summary>
+    <pre style="white-space: pre-wrap; font-family: monospace; font-size: 13px; color: var(--text-secondary); line-height: 1.4; margin-top: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); cursor: text;" onclick="event.stopPropagation();">{{ detail.analyst_raw }}</pre>
+</details>
+{% endif %}
+
+<!-- Selected Stock WMS score history trend chart -->
+{% if selected_stock and wms_scores %}
+<div class="form-panel" style="margin-top: 30px; padding: 24px;">
+    <div class="form-title" style="border-bottom: none; margin-bottom: 10px;">WMS score history trend progression — {{ selected_stock }}</div>
+    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">Historical scores tracked over the last 30 scans in the database</p>
+    <div id="wms-progression-chart" style="width: 100%; height: 350px;"></div>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if selected_stock and wms_scores %}
+<!-- Plotly.js CDN -->
+<script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dates = {{ symbols|safe }};
+        const scores = {{ wms_scores|safe }};
+        const classifications = {{ classifications|safe }};
+        
+        const trace = {
+            x: dates,
+            y: scores,
+            type: 'scatter',
+            mode: 'lines+markers',
+            line: {
+                color: '#00b0ff',
+                width: 3
+            },
+            marker: {
+                size: 8,
+                color: '#ffffff',
+                line: {
+                    color: '#00b0ff',
+                    width: 2
+                }
+            },
+            hovertemplate: 'Scan Date: <b>%{-x}</b><br>WMS Score: <b>%{y:.2f}</b><extra></extra>'
+        };
+        
+        const layout = {
+            font: { color: '#9ca3af', family: 'Outfit, sans-serif' },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            xaxis: { 
+                gridcolor: 'rgba(255,255,255,0.04)',
+                title: 'Scan Timestamp'
+            },
+            yaxis: { 
+                gridcolor: 'rgba(255,255,255,0.04)',
+                title: 'WMS Rating'
+            },
+            margin: { t: 20, b: 50, l: 60, r: 20 }
+        };
+        
+        const config = { responsive: true, displayModeBar: false };
+        Plotly.newPlot('wms-progression-chart', [trace], layout, config);
+    });
+</script>
+{% endif %}
+{% endblock %}

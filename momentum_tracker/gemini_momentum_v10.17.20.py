@@ -230,11 +230,11 @@ DEFAULT_CONFIG_DATA = {
             "Nifty50": "^NSEI",
             "Nifty100": "^CNX100",
             "Midcap150": "NIFTYMIDCAP150.NS",
-            "Smallcap250": "^CNXSC",
-            "NiftyLargeMidcap250": "NIFTY_LARGEMID250.NS",
+            "Smallcap250": "MOSMALL250.NS",
+            "NiftyLargeMidcap250": "ELM250.NS",
             "NiftyNext50": "^NSMIDCP",
             "Nifty500": "^CRSLDX",
-            "NiftyMicrocap250": "NIFTY_MICROCAP250.NS"             
+            "NiftyMicrocap250": "MOSMALL250.NS"             
         },
         "INDEX_BENCHMARK": "^NSEI", 
         # Mapped to the actual CSV file names provided by the user
@@ -903,12 +903,12 @@ YF_TO_NSE_INDEX = {
         "nse_code": "NIFTY MIDCAP 150",
     },
     "Smallcap250": {
-        "yahoo": "^CNXSC",              # legacy YF ticker
+        "yahoo": "MOSMALL250.NS",              # legacy YF ticker
         "nse_name": "NIFTY SMALLCAP 250",
         "nse_code": "NIFTY SMALLCAP 250",
     },
     "NiftyLargeMidcap250": {
-        "yahoo": "NIFTY_LARGEMID250.NS",
+        "yahoo": "ELM250.NS",
         "nse_name": "NIFTY LARGEMIDCAP 250",
         "nse_code": "NIFTY LARGEMIDCAP 250",
     },
@@ -918,7 +918,7 @@ YF_TO_NSE_INDEX = {
         "nse_code": "NIFTY NEXT 50",
     },
     "NiftyMicrocap250": {
-        "yahoo": "NIFTY_MICROCAP250.NS",
+        "yahoo": "MOSMALL250.NS",
         "nse_name": "NIFTY MICROCAP 250",
         "nse_code": "NIFTY MICROCAP 250",
     },

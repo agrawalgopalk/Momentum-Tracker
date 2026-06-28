@@ -1,0 +1,316 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Add Transaction - Momentum Tracker{% endblock %}
+
+{% block extra_head %}
+<style>
+    .drag-drop-zone {
+        border: 2px dashed var(--border-color);
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        padding: 40px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all var(--transition-speed);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .drag-drop-zone:hover, .drag-drop-zone.dragover {
+        border-color: var(--primary);
+        background: rgba(0, 230, 118, 0.04);
+    }
+    
+    .upload-icon {
+        font-size: 48px;
+        background: linear-gradient(135deg, var(--primary), var(--blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 8px;
+    }
+
+    .format-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+
+    .format-header {
+        font-weight: 600;
+        font-size: 15px;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .detail-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 8px;
+    }
+
+    .detail-item {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .detail-item.bought {
+        border-left: 4px solid var(--primary);
+        background: rgba(0, 230, 118, 0.03);
+    }
+
+    .detail-item.sold {
+        border-left: 4px solid var(--red);
+        background: rgba(255, 82, 82, 0.03);
+    }
+
+    .detail-item.skipped {
+        border-left: 4px solid var(--text-secondary);
+        background: rgba(255, 255, 255, 0.01);
+        opacity: 0.8;
+    }
+
+    .detail-text {
+        font-size: 14px;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .detail-badge {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 4px 8px;
+        border-radius: 12px;
+    }
+
+    .badge-buy {
+        background: rgba(0, 230, 118, 0.15);
+        color: #b9f6ca;
+        border: 1px solid rgba(0, 230, 118, 0.25);
+    }
+
+    .badge-sell {
+        background: rgba(255, 82, 82, 0.15);
+        color: #ff8a80;
+        border: 1px solid rgba(255, 82, 82, 0.25);
+    }
+
+    .badge-skip {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fa-solid fa-file-import"></i> Add Transaction</h1>
+        <p class="page-subtitle">Upload transaction spreadsheets to adjust holdings and realize P&L</p>
+    </div>
+</div>
+
+<div class="split-layout">
+    <!-- Left Column: File Upload Form -->
+    <div class="split-left">
+        <div class="form-panel" style="height: 100%; margin-bottom: 0; display: flex; flex-direction: column;">
+            <div class="form-title"><i class="fa-solid fa-cloud-arrow-up"></i> Upload Excel/CSV</div>
+            
+            <form method="POST" enctype="multipart/form-data" id="upload-form" style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; gap: 20px;">
+                {% csrf_token %}
+                
+                <div class="drag-drop-zone" id="drop-zone">
+                    <i class="fa-solid fa-file-excel upload-icon" id="file-icon"></i>
+                    <h3 style="font-size: 16px; font-weight: 600; color: #ffffff;">Drag & Drop spreadsheet here</h3>
+                    <p style="font-size: 13px; color: var(--text-secondary);">or click to browse files from your computer</p>
+                    <span style="font-size: 11px; color: var(--text-secondary); background: rgba(255, 255, 255, 0.06); padding: 4px 8px; border-radius: 4px;">Supports: .xlsx, .xls, .csv</span>
+                    <input type="file" id="tx_file" name="tx_file" accept=".xlsx,.xls,.csv" required style="display: none;">
+                </div>
+                
+                <div id="file-info" style="display: none; padding: 12px; border-radius: 8px; background: rgba(0, 230, 118, 0.08); border: 1px solid rgba(0, 230, 118, 0.2); font-size: 14px; font-weight: 600; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-circle-check" style="color: var(--primary);"></i>
+                    <span id="file-name" style="color: #ffffff;">No file selected</span>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 14px; font-weight: 700; border-radius: 10px;">
+                    <i class="fa-solid fa-square-poll-vertical"></i> Process & Apply Transactions
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Column: Format Instructions -->
+    <div class="split-right">
+        <div class="form-panel" style="height: 100%; margin-bottom: 0;">
+            <div class="form-title"><i class="fa-solid fa-circle-info"></i> Supported Formats</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <!-- Format 1: SmallCase Single-Column Format -->
+                <div class="format-card">
+                    <div class="format-header">
+                        <i class="fa-solid fa-cube" style="color: var(--blue);"></i>
+                        <span>SmallCase Excel Report (Single-Column)</span>
+                        <span class="badge badge-yellow" style="font-size: 9px; padding: 2px 6px;">Auto-Detected</span>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px;">
+                        Directly upload the exported spreadsheet from SmallCase transactions. It is a single-column layout containing sequential blocks of 4 elements.
+                    </p>
+                    <div style="font-size: 12px; font-family: monospace; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; color: var(--text-primary);">
+                        1. Ticker Symbol (e.g. SARDAEN)<br>
+                        2. Average price (e.g. 578.75)<br>
+                        3. Quantity Filled (e.g. 46 / 46)<br>
+                        4. Order Action (e.g. BUY or SELL)
+                    </div>
+                </div>
+
+                <!-- Format 2: Standard Multi-Column Format -->
+                <div class="format-card">
+                    <div class="format-header">
+                        <i class="fa-solid fa-table" style="color: var(--primary);"></i>
+                        <span>Standard Multi-Column Format</span>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px;">
+                        Standard CSV or Excel spreadsheet containing individual transaction log rows.
+                    </p>
+                    <div style="font-size: 12px; color: var(--text-primary); line-height: 1.5;">
+                        Required columns: <strong>Symbol, Price, Qty, Action</strong> (Actions: BUY, SELL)<br>
+                        Optional columns: <strong>Date, Batch Type</strong>
+                    </div>
+                </div>
+
+                <!-- Portfolio Update Logic Note -->
+                <div style="background: rgba(41, 121, 255, 0.05); border: 1px solid rgba(41, 121, 255, 0.15); border-radius: 12px; padding: 16px;">
+                    <h4 style="font-size: 14px; font-weight: 600; color: #ffffff; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-gears" style="color: var(--blue);"></i> Portfolio Update Mechanism
+                    </h4>
+                    <ul style="font-size: 13px; color: var(--text-secondary); padding-left: 20px; line-height: 1.5;">
+                        <li style="margin-bottom: 4px;"><strong>BUY Actions:</strong> Checks current holding. If it exists, updates it using a <em>weighted average cost</em> formula. If not, adds a new open position.</li>
+                        <li><strong>SELL Actions:</strong> If holding exists, sells either partially or fully. Realized P&L is immediately written into the closed performance trades log table.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Panel (Visible only when results are passed) -->
+{% if results %}
+<div class="form-panel" style="margin-top: 30px;">
+    <div class="form-title" style="display: flex; justify-content: space-between; align-items: center;">
+        <span><i class="fa-solid fa-list-check"></i> Transaction Processing Log Details</span>
+        <div style="display: flex; gap: 10px;">
+            <span class="badge badge-green">Processed: {{ results.success_count }}</span>
+            {% if results.skipped_count > 0 %}
+            <span class="badge badge-yellow">Skipped: {{ results.skipped_count }}</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="detail-list">
+        {% for detail in results.details %}
+        <div class="detail-item {% if 'Bought' in detail or 'Incremented' in detail or 'Added' in detail %}bought{% elif 'Closed' in detail or 'sold' in detail or 'Closed position' in detail %}sold{% else %}skipped{% endif %}">
+            <div class="detail-text">
+                {% if 'Bought' in detail or 'Incremented' in detail or 'Added' in detail %}
+                <i class="fa-solid fa-circle-plus" style="color: var(--primary); margin-right: 8px;"></i>
+                {% elif 'Closed' in detail or 'sold' in detail or 'Closed position' in detail %}
+                <i class="fa-solid fa-circle-minus" style="color: var(--red); margin-right: 8px;"></i>
+                {% else %}
+                <i class="fa-solid fa-circle-question" style="color: var(--text-secondary); margin-right: 8px;"></i>
+                {% endif %}
+                {{ detail }}
+            </div>
+            
+            <div>
+                {% if 'Bought' in detail or 'Incremented' in detail or 'Added' in detail %}
+                <span class="detail-badge badge-buy">BUY</span>
+                {% elif 'Closed' in detail or 'sold' in detail or 'Closed position' in detail %}
+                <span class="detail-badge badge-sell">SELL</span>
+                {% else %}
+                <span class="detail-badge badge-skip">SKIP</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('tx_file');
+    const fileIcon = document.getElementById('file-icon');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+
+    // Make drag drop zone click open file selection
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // Handle file input changes
+    fileInput.addEventListener('change', () => {
+        handleFileSelect(fileInput.files[0]);
+    });
+
+    // Handle drag-and-drop events
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            fileInput.files = e.dataTransfer.files;
+            handleFileSelect(e.dataTransfer.files[0]);
+        }
+    });
+
+    function handleFileSelect(file) {
+        if (!file) return;
+        
+        fileName.innerText = `${file.name} (${formatBytes(file.size)})`;
+        fileInfo.style.display = 'flex';
+        
+        // Visual updates
+        fileIcon.className = 'fa-solid fa-file-circle-check upload-icon';
+        fileIcon.style.background = 'linear-gradient(135deg, var(--primary), var(--primary))';
+        fileIcon.style.webkitBackgroundClip = 'text';
+    }
+
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+</script>
+{% endblock %}

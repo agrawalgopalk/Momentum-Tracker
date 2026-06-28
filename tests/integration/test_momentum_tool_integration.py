@@ -134,7 +134,7 @@ class TestOutputStructure:
 
     def test_has_metadata_section(self, live_output):
         assert "Category" in live_output
-        assert "Scanned"  in live_output
+        assert "Returned"  in live_output
         assert "Passed"   in live_output
 
     def test_tickers_are_ns_suffixed(self, live_output):

@@ -45,3 +45,51 @@ Momentum-Tracker/
 ├── README.md                # System documentation
 ├── main.py                  # Primary controller orchestration script
 └── requirements.txt         # Required Python library versions
+
+---
+
+## 🚀 Django Web Dashboard Instructions
+
+We have converted the Streamlit UI to a modern Django application. Portfolios, closed trades, and alert histories are separated securely by user profile, while quantitative scanner outputs remain global.
+
+### How to Run:
+1. **Activate the virtual environment:**
+   - **Command Prompt:** `venv\Scripts\activate`
+   - **PowerShell:** `.\venv\Scripts\Activate.ps1`
+   - **Unix/macOS:** `source venv/bin/activate`
+2. **Start the local server:**
+   ```bash
+   python manage.py runserver
+   ```
+3. Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser.
+
+### Default Admin Superuser Credentials:
+- **Username:** `admin`
+- **Password:** `admin123`
+
+### Viewing and Managing User Accounts:
+1. **Via Web Admin Console:**
+   Go to [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/) and log in using the superuser credentials above. Click on **Users** under the Authentication and Authorization module to inspect names, search profiles, and audit user IDs.
+2. **Via Command Line Shell:**
+   Run this command in the project root to quickly list all active accounts and their unique database IDs:
+   ```bash
+   python manage.py shell -c "from django.contrib.auth.models import User; [print(f'User ID: {u.id:2d} | Username: {u.username:15s} | Email: {u.email}') for u in User.objects.all()]"
+   ```
+
+### Running Unit Tests:
+Run these commands in the project root to verify quantitative indicator calculations and configurations:
+- **Windows PowerShell:**
+  ```powershell
+  $env:PYTHONPATH=".;crew;app;momentum_tracker"
+  pytest tests/unit/ -v
+  ```
+- **Windows CMD:**
+  ```cmd
+  set PYTHONPATH=.;crew;app;momentum_tracker
+  pytest tests/unit/ -v
+  ```
+- **macOS / Linux / Git Bash:**
+  ```bash
+  export PYTHONPATH=".:crew:app:momentum_tracker"
+  pytest tests/unit/ -v
+  ```

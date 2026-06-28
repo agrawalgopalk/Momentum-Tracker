@@ -1,0 +1,205 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Performance Tracker - Momentum Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Performance Tracker</h1>
+        <p class="page-subtitle">Closed trade details, statistics, and evaluation of LLM recommendations</p>
+    </div>
+</div>
+
+{% if summary %}
+<!-- KPIs Grid -->
+<div class="card-grid">
+    <div class="kpi-card">
+        <div class="kpi-title">Total Trades</div>
+        <div class="kpi-value">{{ summary.total_trades }}</div>
+    </div>
+    <div class="kpi-card {% if summary.win_rate_pct >= 50 %}kpi-green{% else %}kpi-red{% endif %}">
+        <div class="kpi-title">Win Rate</div>
+        <div class="kpi-value">{{ summary.win_rate_pct }}%</div>
+    </div>
+    <div class="kpi-card {% if summary.total_pnl >= 0 %}kpi-green{% else %}kpi-red{% endif %}">
+        <div class="kpi-title">Total P&L</div>
+        <div class="kpi-value">₹{{ summary.total_pnl|floatformat:0 }}</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-title">Avg P&L %</div>
+        <div class="kpi-value">{{ summary.avg_pnl_pct|floatformat:1 }}%</div>
+    </div>
+</div>
+
+<!-- Best and Worst Trades -->
+<div class="split-layout" style="grid-template-columns: 1fr 1fr; margin-bottom: 30px;">
+    <!-- Best Trade Card -->
+    {% if summary.best_trade %}
+    <div class="kpi-card kpi-green" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <div class="kpi-title" style="margin-bottom: 8px;">🏆 Best Trade</div>
+            <div style="font-size: 24px; font-weight: 700; color: #ffffff;">{{ summary.best_trade.symbol }}</div>
+            <div style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">Hold: {{ summary.best_trade.hold_days }} days</div>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 28px; font-weight: 700; color: var(--primary);">+{{ summary.best_trade.pnl_pct|floatformat:1 }}%</div>
+            <div style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">P&L: ₹{{ summary.best_trade.pnl|floatformat:0 }}</div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Worst Trade Card -->
+    {% if summary.worst_trade %}
+    <div class="kpi-card kpi-red" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <div class="kpi-title" style="margin-bottom: 8px;">⚠️ Worst Trade</div>
+            <div style="font-size: 24px; font-weight: 700; color: #ffffff;">{{ summary.worst_trade.symbol }}</div>
+            <div style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">Hold: {{ summary.worst_trade.hold_days }} days</div>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 28px; font-weight: 700; color: var(--red);">{{ summary.worst_trade.pnl_pct|floatformat:1 }}%</div>
+            <div style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">P&L: ₹{{ summary.worst_trade.pnl|floatformat:0 }}</div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Extra Stats -->
+{% if summary.avg_hold_days %}
+<div class="form-panel" style="padding: 16px 24px; margin-bottom: 30px; display: inline-flex; align-items: center; gap: 12px; font-size: 15px;">
+    <i class="fa-regular fa-calendar-check" style="font-size: 18px; color: var(--primary);"></i>
+    <span>Average Holding Period: <strong>{{ summary.avg_hold_days }} days</strong></span>
+</div>
+{% endif %}
+
+<!-- Classification Breakdown -->
+{% if cls_labels %}
+<div class="split-layout" style="grid-template-columns: 1.2fr 1fr;">
+    <!-- Left: Table -->
+    <div class="split-left">
+        <h2 style="font-size: 18px; margin-bottom: 15px; color: #ffffff;">Win Rate by Analyst Classification</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Classification</th>
+                        <th>Trades</th>
+                        <th>Wins</th>
+                        <th>Win Rate</th>
+                        <th>Total P&L (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in cls_labels %}
+                    <!-- We iterate using indices in javascript, so let's unpack manually or run standard logic -->
+                    {% endfor %}
+                    
+                    {% if summary.by_classification %}
+                        {% for key, val in summary.by_classification.items %}
+                        <tr>
+                            <td style="font-weight: 700;">
+                                {% if key == 'BUY' %}
+                                <span class="badge badge-green">BUY</span>
+                                {% elif key == 'HOLD' %}
+                                <span class="badge badge-yellow">HOLD</span>
+                                {% elif key == 'AVOID' %}
+                                <span class="badge badge-red">AVOID</span>
+                                {% else %}
+                                <span class="badge badge-gray">{{ key }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ val.trades }}</td>
+                            <td>{{ val.wins }}</td>
+                            <td style="font-weight: 600;">
+                                <!-- Simple clientside division or render value directly -->
+                                {% if val.trades %}
+                                    <!-- Use template filter or simple fallback -->
+                                    <!-- Wait, we can pass it from view! We passed it in context, but let's calculate directly or use views arrays -->
+                                {% endif %}
+                                <span id="winrate-{{ forloop.counter0 }}"></span>%
+                            </td>
+                            <td class="{% if val.pnl >= 0 %}pnl-positive{% else %}pnl-negative{% endif %}" style="font-weight: 600;">
+                                ₹{{ val.pnl|floatformat:2 }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Right: Plotly Chart -->
+    <div class="split-right">
+        <h2 style="font-size: 18px; margin-bottom: 15px; color: #ffffff;">Conviction Calibration Chart</h2>
+        <div class="form-panel" style="padding: 16px;">
+            <div id="conviction-chart" style="width: 100%; height: 280px;"></div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="form-panel" style="text-align: center; padding: 60px 20px;">
+    <i class="fa-solid fa-chart-line" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 16px;"></i>
+    <h3 style="font-size: 18px; color: #ffffff; margin-bottom: 8px;">No Performance Records Available</h3>
+    <p style="color: var(--text-secondary);">Perform buying and selling actions in the transaction logger to track trading metrics over time.</p>
+    <a href="{% url 'trade' %}" class="btn-primary" style="margin-top: 20px;"><i class="fa-solid fa-wallet"></i> Go to Execute Trades</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if summary and cls_labels %}
+<script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const labels = {{ cls_labels|safe }};
+        const winRates = {{ cls_win_rates|safe }};
+        const trades = {{ cls_trades|safe }};
+        const pnl = {{ cls_pnl|safe }};
+        
+        // Populate the win rate values in the table rows
+        winRates.forEach((rate, idx) => {
+            const el = document.getElementById(`winrate-${idx}`);
+            if (el) el.textContent = rate.toFixed(1);
+        });
+        
+        const colors = labels.map(l => {
+            if (l === 'BUY') return '#00e676';
+            if (l === 'HOLD') return '#ffca28';
+            if (l === 'AVOID') return '#ff5252';
+            return '#9ca3af';
+        });
+        
+        const trace = {
+            x: labels,
+            y: winRates,
+            type: 'bar',
+            marker: {
+                color: colors,
+                line: { width: 0 }
+            },
+            hovertemplate: 'Classification: <b>%{x}</b><br>Win Rate: <b>%{y}%</b><extra></extra>'
+        };
+        
+        const layout = {
+            font: { color: '#9ca3af', family: 'Outfit, sans-serif' },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            xaxis: { gridcolor: 'rgba(255,255,255,0.04)' },
+            yaxis: { 
+                gridcolor: 'rgba(255,255,255,0.04)',
+                title: 'Win Rate (%)',
+                range: [0, 100]
+            },
+            margin: { t: 20, b: 40, l: 50, r: 20 }
+        };
+        
+        const config = { responsive: true, displayModeBar: false };
+        
+        Plotly.newPlot('conviction-chart', [trace], layout, config);
+    });
+</script>
+{% endif %}
+{% endblock %}

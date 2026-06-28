@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Momentum Portfolio System</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="margin: 0; padding: 0;">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo"><i class="fa-solid fa-chart-line"></i> Momentum</div>
+                <div class="auth-subtitle">Log in to manage your portfolio</div>
+            </div>
+            
+            {% if messages %}
+            <div class="alert-messages" style="margin-bottom: 20px;">
+                {% for message in messages %}
+                <div class="django-alert django-alert-{{ message.tags }}" style="padding: 10px 14px; font-size: 13px;">
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" required>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password" required>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 14px;">
+                    <i class="fa-solid fa-sign-in-alt"></i> Log In
+                </button>
+            </form>
+            
+            <div class="auth-footer-text">
+                Don't have an account? <a href="{% url 'signup' %}" class="auth-link">Sign Up</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

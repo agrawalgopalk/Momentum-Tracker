@@ -1,0 +1,446 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Settings & Data Management - Momentum Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Data Management & Settings</h1>
+        <p class="page-subtitle">Inspect database sizing, execute cleanup tasks, and check server logs</p>
+    </div>
+</div>
+
+<div class="split-layout" style="grid-template-columns: 1fr 1.5fr; gap: 30px;">
+    <!-- Left Column: Database Stats and Cleanups -->
+    <div class="split-left" style="display: flex; flex-direction: column; gap: 30px;">
+        
+        <!-- Row Counts -->
+        <div class="form-panel" style="margin-bottom: 0;">
+            <div class="form-title"><i class="fa-solid fa-database"></i> Database Summary</div>
+            <div class="table-container" style="margin-bottom: 0; border-radius: 8px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Table</th>
+                            <th style="text-align: right;">Rows</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in stats %}
+                        <tr>
+                            <td style="font-weight: 600;">{{ row.table }}</td>
+                            <td style="text-align: right; font-weight: 700; color: var(--primary);">{{ row.rows }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- LLM Provider Settings -->
+        <div class="form-panel" style="margin-bottom: 0;">
+            <div class="form-title"><i class="fa-solid fa-brain"></i> LLM Configuration Settings</div>
+            <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; line-height: 1.4;">
+                Configure reasoning models, API credentials, and select your active orchestration provider dynamically.
+            </p>
+            
+            <form method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_llm_provider">
+                
+                <!-- Active Provider Selection -->
+                <div class="form-group" style="margin-bottom: 5px;">
+                    <label style="font-size: 12px; font-weight: 600; margin-bottom: 10px; display: block; color: var(--text-secondary);">Active Reasoning Provider</label>
+                    <div style="display: flex; gap: 20px; align-items: center; background: rgba(0, 0, 0, 0.25); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; color: white; margin-bottom: 0;">
+                            <input type="radio" name="provider" value="gemini" {% if current_provider == 'gemini' %}checked{% endif %} style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--primary);">
+                            <span style="font-weight: {% if current_provider == 'gemini' %}700{% else %}400{% endif %}; color: {% if current_provider == 'gemini' %}var(--primary){% else %}var(--text-secondary){% endif %};">Google Gemini</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; color: white; margin-bottom: 0;">
+                            <input type="radio" name="provider" value="groq" {% if current_provider == 'groq' %}checked{% endif %} style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--primary);">
+                            <span style="font-weight: {% if current_provider == 'groq' %}700{% else %}400{% endif %}; color: {% if current_provider == 'groq' %}var(--primary){% else %}var(--text-secondary){% endif %};">Groq (Llama)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <hr style="border-color: var(--border-color); margin: 5px 0;">
+
+                <!-- Gemini Configuration -->
+                <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-weight: 700; font-size: 13px; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-brands fa-google"></i> Google Gemini Configuration
+                    </div>
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label style="font-size: 11px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-secondary);">Model Name</label>
+                        <input type="text" name="gemini_model" value="{{ gemini_model }}" required style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label style="font-size: 11px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-secondary);">API Key</label>
+                        <input type="password" name="gemini_api_key" placeholder="{{ gemini_api_key_masked }}" value="{{ gemini_api_key_masked }}" style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <!-- Groq Configuration -->
+                <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-weight: 700; font-size: 13px; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-server"></i> Groq Configuration
+                    </div>
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label style="font-size: 11px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-secondary);">Model Name</label>
+                        <input type="text" name="groq_model" value="{{ groq_model }}" required style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label style="font-size: 11px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-secondary);">API Key</label>
+                        <input type="password" name="groq_api_key" placeholder="{{ groq_api_key_masked }}" value="{{ groq_api_key_masked }}" style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 10px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 5px;">
+                     <i class="fa-solid fa-floppy-disk"></i> Save Configuration
+                </button>
+            </form>
+        </div>
+        
+        <!-- Strategy Configuration -->
+        <div class="form-panel" style="margin-bottom: 0;">
+            <div class="form-title"><i class="fa-solid fa-gears"></i> Strategy Parameters Configuration</div>
+            <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; line-height: 1.4;">
+                Fine-tune quantitative variables, filter criteria, and portfolio sizing parameters dynamically.
+            </p>
+            
+            <form method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_strategy_config">
+                
+                <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-weight: 700; font-size: 13px; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-filter"></i> Filters & Liquidity Floors
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label style="font-size: 11px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-secondary);">Min Stock Price (₹)</label>
+                            <input type="number" step="0.1" name="min_price" value="{{ strategy_config.min_price }}" required style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label style="font-size: 11px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-secondary);">Min 20d Volume Avg</label>
+                            <input type="number" name="min_volume_avg" value="{{ strategy_config.min_volume_avg }}" required style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 20px; margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; color: white; margin-bottom: 0;">
+                            <input type="checkbox" name="enable_filters" value="true" {% if strategy_config.enable_filters %}checked{% endif %} style="cursor: pointer; width: 15px; height: 15px; accent-color: var(--primary);">
+                            <span>Enable Universe Filters</span>
+                        </label>
+                        
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; color: white; margin-bottom: 0;">
+                            <input type="checkbox" name="enable_ema_filter" value="true" {% if strategy_config.enable_ema_filter %}checked{% endif %} style="cursor: pointer; width: 15px; height: 15px; accent-color: var(--primary);">
+                            <span>EMA Alignment trend filter</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-weight: 700; font-size: 13px; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-chart-line"></i> Momentum & History Config
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label style="font-size: 11px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-secondary);">Max Cache Age (Days)</label>
+                            <input type="number" name="max_cache_days" value="{{ strategy_config.max_cache_days }}" required style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label style="font-size: 11px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-secondary);">History Download (Years)</label>
+                            <input type="number" name="download_history_years" value="{{ strategy_config.download_history_years }}" required style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 5px; margin-bottom: 5px;">
+                        <label style="font-size: 11px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-secondary);">Relative Strength Lookback (Days)</label>
+                        <input type="number" name="rs_lookback_days" value="{{ strategy_config.rs_lookback_days }}" required style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-weight: 700; font-size: 13px; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-briefcase"></i> Portfolio & Rebalance Settings
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label style="font-size: 11px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-secondary);">Portfolio Target (Top N)</label>
+                            <input type="number" name="top_n" value="{{ strategy_config.top_n }}" required style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label style="font-size: 11px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-secondary);">Forced Exit Drop (%)</label>
+                            <input type="number" step="0.1" name="momentum_drop_threshold_pct" value="{{ strategy_config.momentum_drop_threshold_pct }}" required style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 10px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 5px;">
+                     <i class="fa-solid fa-floppy-disk"></i> Save Strategy Parameters
+                </button>
+            </form>
+        </div>
+        
+        <!-- Cleanup Operations -->
+        <div class="form-panel" style="margin-bottom: 0;">
+            <div class="form-title"><i class="fa-solid fa-broom"></i> Cleanup Actions</div>
+            <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; line-height: 1.4;">
+                <i class="fa-solid fa-triangle-exclamation" style="color: var(--yellow);"></i> <strong>Warning:</strong> These actions permanent delete database records. Portfolio holdings are never deleted by these actions.
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Clear Alerts -->
+                <form method="POST" onsubmit="return confirm('Clear all alerts?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="clear_alerts">
+                    <button type="submit" class="btn-secondary" style="width: 100%; justify-content: flex-start; color: var(--red);">
+                        <i class="fa-solid fa-bell-slash"></i> Clear All Alerts
+                    </button>
+                </form>
+                
+                <!-- Clear Reports -->
+                <form method="POST" onsubmit="return confirm('Clear all scan reports?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="clear_reports">
+                    <button type="submit" class="btn-secondary" style="width: 100%; justify-content: flex-start; color: var(--red);">
+                        <i class="fa-solid fa-file-circle-xmark"></i> Clear All Scan Reports
+                    </button>
+                </form>
+                
+                <!-- Clear Performance -->
+                <form method="POST" onsubmit="return confirm('Clear all performance history?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="clear_performance">
+                    <button type="submit" class="btn-secondary" style="width: 100%; justify-content: flex-start; color: var(--red);">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Clear Performance History
+                    </button>
+                </form>
+                
+                <hr style="border-color: var(--border-color); margin: 8px 0;">
+                
+                <!-- Clear Scans Before Date -->
+                <form method="POST" style="display: flex; flex-direction: column; gap: 8px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="clear_old_scans">
+                    <label style="font-size: 12px; font-weight: 600;">Clear scans older than:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="date" name="cutoff_date" required style="flex: 1; padding: 8px 12px; font-size: 13px;">
+                        <button type="submit" class="btn-secondary" style="padding: 8px 16px; font-size: 13px; color: var(--red);">Delete</button>
+                    </div>
+                </form>
+                
+                <hr style="border-color: var(--border-color); margin: 8px 0;">
+                
+                <!-- Nuclear option -->
+                <form method="POST" style="background: rgba(255, 82, 82, 0.04); border: 1px solid rgba(255, 82, 82, 0.15); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="nuclear_option">
+                    <div style="font-weight: 700; color: var(--red); font-size: 13px; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-radiation"></i> Nuclear Option
+                    </div>
+                    <label style="font-size: 12px; color: var(--text-secondary);">Type <strong>YES</strong> below to wipe all scan/report/alerts data:</label>
+                    <input type="text" name="confirm_text" required placeholder="Type YES" style="padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.5);">
+                    <button type="submit" class="btn-primary" style="background: var(--red); color: white; padding: 10px 16px; font-size: 13px;">Wipe Database</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Cache Control Center -->
+        <div class="form-panel" style="margin-bottom: 0;">
+            <div class="form-title"><i class="fa-solid fa-cloud-arrow-down"></i> Cache Control Center</div>
+            <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px; line-height: 1.4;">
+                Download and cache stock price history and fundamentals locally, or wipe the cache to reset the database.
+            </p>
+            
+            <!-- Pre-cache execution panel -->
+            <div style="background: rgba(255, 255, 255, 0.02); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px;">
+                <div style="font-weight: 700; font-size: 13px; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-rotate"></i> Bulk Price & Fundamentals Cache
+                </div>
+                
+                <div id="precache-idle" style="display: block;">
+                    <button type="button" class="btn-primary" onclick="startPrecache()" style="width: 100%; padding: 10px; font-weight: 600;">
+                        <i class="fa-solid fa-download"></i> Start Bulk Cache Update
+                    </button>
+                </div>
+                
+                <div id="precache-active" style="display: none;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <div class="spinner" style="width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.1); border-left-color: var(--primary); margin: 0; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        <span style="font-size: 13px; font-weight: 600; color: #fff;">Caching in progress...</span>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.4); border-radius: 4px; height: 8px; overflow: hidden; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div id="precache-progress-bar" style="background: var(--primary); width: 0%; height: 100%; transition: width 0.3s ease;"></div>
+                    </div>
+                    <div id="precache-status" style="font-size: 12px; color: var(--text-secondary);">Initializing...</div>
+                </div>
+            </div>
+
+            <!-- Clear Cache action -->
+            <form method="POST" action="{% url 'settings_clear_cache' %}" onsubmit="return confirm('Wipe the entire local Parquet and JSON files cache? This forces a full network reload on subsequent scans.');" style="background: rgba(255, 82, 82, 0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,82,82,0.1); display: flex; flex-direction: column; gap: 10px;">
+                {% csrf_token %}
+                <div style="font-weight: 700; color: var(--red); font-size: 13px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                    <i class="fa-solid fa-trash-can"></i> Clear Cache Database
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 5px;">
+                    <label style="font-size: 11px; font-weight: 600; color: var(--text-secondary);">New Download History (Years)</label>
+                    <input type="number" name="download_history_years" value="{{ strategy_config.download_history_years }}" required style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                </div>
+                
+                <button type="submit" class="btn-secondary" style="width: 100%; justify-content: center; color: var(--red); border-color: rgba(255,82,82,0.2);">
+                    <i class="fa-solid fa-database"></i> Wipe Local Cache Files
+                </button>
+            </form>
+        </div>
+
+        <!-- Index Category Creator -->
+        <div class="form-panel" style="margin-bottom: 0;">
+            <div class="form-title"><i class="fa-solid fa-folder-plus"></i> Add Index Category</div>
+            <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; line-height: 1.4;">
+                Create new NSE index universes dynamically by mapping category name to benchmark ticker and uploading a symbols CSV file.
+            </p>
+            
+            <form method="POST" action="{% url 'settings_add_category' %}" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 12px;">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label style="font-size: 11px; font-weight: 600;">Category Name</label>
+                    <input type="text" name="category_name" placeholder="e.g. NiftyMicrocap250" required style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white;">
+                </div>
+                
+                <div class="form-group">
+                    <label style="font-size: 11px; font-weight: 600;">Benchmark Ticker</label>
+                    <input type="text" name="benchmark_ticker" placeholder="e.g. ^NSEI" style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white;">
+                </div>
+                
+                <div class="form-group">
+                    <label style="font-size: 11px; font-weight: 600;">Symbols CSV File</label>
+                    <input type="file" name="symbols_file" accept=".csv" required style="font-size: 13px;">
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 10px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                     <i class="fa-solid fa-plus"></i> Register Index Category
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Right Column: Logs Viewer -->
+    <div class="split-right">
+        <div class="form-panel" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="form-title"><i class="fa-solid fa-terminal"></i> System Logs</div>
+            
+            <!-- Log Configuration Filters -->
+            <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div style="display: flex; gap: 8px;">
+                    <a href="?log_type=dashboard&lines={{ lines }}" class="btn-secondary {% if log_type == 'dashboard' %}btn-primary{% endif %}" style="padding: 6px 12px; font-size: 13px; text-decoration: none;">
+                        dashboard.log
+                    </a>
+                    <a href="?log_type=scheduler&lines={{ lines }}" class="btn-secondary {% if log_type == 'scheduler' %}btn-primary{% endif %}" style="padding: 6px 12px; font-size: 13px; text-decoration: none;">
+                        scheduler.log
+                    </a>
+                </div>
+                
+                <form method="GET" style="margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+                    <input type="hidden" name="log_type" value="{{ log_type }}">
+                    <label for="lines" style="font-size: 12px; white-space: nowrap;">Lines:</label>
+                    <select name="lines" id="lines" onchange="this.form.submit()" style="padding: 4px 8px; font-size: 13px; background: rgba(0,0,0,0.3);">
+                        <option value="20" {% if lines == 20 %}selected{% endif %}>20 lines</option>
+                        <option value="50" {% if lines == 50 %}selected{% endif %}>50 lines</option>
+                        <option value="100" {% if lines == 100 %}selected{% endif %}>100 lines</option>
+                        <option value="200" {% if lines == 200 %}selected{% endif %}>200 lines</option>
+                    </select>
+                </form>
+            </div>
+            
+            <!-- Log View Area -->
+            <div style="flex: 1; display: flex; flex-direction: column;">
+                <div class="log-view" id="log-display">{{ log_content }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Keep logs scrolled to the bottom automatically
+    document.addEventListener('DOMContentLoaded', function() {
+        const logDisplay = document.getElementById('log-display');
+        if (logDisplay) {
+            logDisplay.scrollTop = logDisplay.scrollHeight;
+        }
+        checkPrecacheStatus();
+    });
+
+    let precacheInterval = null;
+
+    function startPrecache() {
+        if (!confirm("Start downloading historical prices and fundamentals for all symbols? This runs in the background.")) {
+            return;
+        }
+        
+        fetch("{% url 'settings_precache' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                checkPrecacheStatus();
+            } else {
+                alert("Error starting precache: " + data.error);
+            }
+        })
+        .catch(err => console.error("Error starting precache:", err));
+    }
+
+    function checkPrecacheStatus() {
+        fetch("{% url 'settings_precache_status' %}")
+        .then(res => res.json())
+        .then(data => {
+            const idlePanel = document.getElementById('precache-idle');
+            const activePanel = document.getElementById('precache-active');
+            const progressBar = document.getElementById('precache-progress-bar');
+            const statusText = document.getElementById('precache-status');
+
+            if (data.running) {
+                idlePanel.style.display = 'none';
+                activePanel.style.display = 'block';
+                
+                const pct = data.total > 0 ? (data.current / data.total * 100) : 0;
+                progressBar.style.width = pct + '%';
+                statusText.innerText = `${data.status_msg} (${data.current}/${data.total})`;
+                
+                if (!precacheInterval) {
+                    precacheInterval = setInterval(checkPrecacheStatus, 2000);
+                }
+            } else {
+                if (precacheInterval) {
+                    clearInterval(precacheInterval);
+                    precacheInterval = null;
+                }
+                
+                idlePanel.style.display = 'block';
+                activePanel.style.display = 'none';
+                
+                if (data.success) {
+                    progressBar.style.width = '100%';
+                    statusText.innerText = data.status_msg || "Caching completed successfully.";
+                } else if (data.error) {
+                    statusText.innerText = "Error: " + data.error;
+                }
+            }
+        })
+        .catch(err => console.error("Error checking precache status:", err));
+    }
+</script>
+{% endblock %}

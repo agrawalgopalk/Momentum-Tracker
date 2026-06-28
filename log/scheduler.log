@@ -1,0 +1,667 @@
+2026-04-26 12:25:38  INFO      --once mode: running both jobs now.
+2026-04-26 12:25:38  INFO      === JOB 1: Momentum scan + classification (via main.py) ===
+2026-04-26 12:25:44  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:25:45  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:26:00  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:26:03  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:26:03  ERROR     OpenAI API call failed: OPENAI_API_KEY is required
+2026-04-26 12:26:03  ERROR     OpenAI API call failed: OPENAI_API_KEY is required
+2026-04-26 12:26:03  WARNING   Memory extraction failed, storing full content as single memory: OPENAI_API_KEY is required
+2026-04-26 12:26:03  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:26:08  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:26:08  ERROR     OpenAI API call failed: OPENAI_API_KEY is required
+2026-04-26 12:26:08  ERROR     OpenAI API call failed: OPENAI_API_KEY is required
+2026-04-26 12:26:08  WARNING   Memory extraction failed, storing full content as single memory: OPENAI_API_KEY is required
+2026-04-26 12:26:08  INFO      Job 1 complete – run_id=1, 0 stocks, 1 picks saved
+2026-04-26 12:26:08  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 12:26:08  INFO      No open positions – monitor skipped.
+2026-04-26 12:26:08  INFO      Done.
+2026-04-26 12:37:37  INFO      --once mode: running both jobs now.
+2026-04-26 12:37:37  INFO      === JOB 1: Momentum scan + classification (via main.py) ===
+2026-04-26 12:37:38  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:37:38  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:37:57  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:37:58  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:37:58  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:38:04  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:38:05  INFO      Raw output preview:
+SYMBOL: TATAPOWER.NS
+CLASSIFICATION: BUY
+CONFIDENCE: 4
+SECTOR BACKDROP: The energy sector is experiencing a significant tailwind due to increasing demand and favorable government policies. However, the sector is also heavily concentrated in the portfolio, which may pose a risk.
+FUNDAMENTAL HEALTH: TATAPOWER.NS has shown a strong revenue trend, with a growth rate of 15% in the last quarter. The company's margins have also improved, with a net profit margin of 12%. However, the company's debt-to-e
+2026-04-26 12:38:05  INFO      Job 1 complete – run_id=2, 0 stocks, 1 picks saved
+2026-04-26 12:38:05  INFO      Scan rows parsed: 0
+2026-04-26 12:38:05  INFO      Picks parsed: 1
+2026-04-26 12:38:05  INFO      Sample row: EMPTY
+2026-04-26 12:38:05  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 12:38:05  INFO      No open positions – monitor skipped.
+2026-04-26 12:38:05  INFO      Done.
+2026-04-26 12:39:54  INFO      --once mode: running both jobs now.
+2026-04-26 12:39:54  INFO      === JOB 1: Momentum scan + classification (via main.py) ===
+2026-04-26 12:39:54  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:39:55  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:40:10  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:40:12  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:40:12  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:40:17  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:40:17  INFO      Job 1 complete – run_id=3, 0 stocks, 1 picks saved
+2026-04-26 12:40:17  INFO      Raw output preview:
+SYMBOL: TATAPOWER.NS
+CLASSIFICATION: BUY
+CONFIDENCE: 4
+SECTOR BACKDROP: The energy sector is experiencing a significant tailwind due to increasing demand and favorable government policies. However, the sector is also heavily concentrated in the portfolio, which may pose a risk.
+FUNDAMENTAL HEALTH: TATAPOWER.NS has shown a strong revenue trend, with a growth rate of 15% in the last quarter. The company's margins have also improved, with a net profit margin of 12%. However, the company's debt-to-e
+2026-04-26 12:40:17  INFO      Scan rows parsed: 0
+2026-04-26 12:40:17  INFO      Picks parsed: 1
+2026-04-26 12:40:17  INFO      Sample row: EMPTY
+2026-04-26 12:40:17  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 12:40:17  INFO      No open positions – monitor skipped.
+2026-04-26 12:40:17  INFO      Done.
+2026-04-26 12:48:43  INFO      --once mode: running both jobs now.
+2026-04-26 12:48:43  INFO      === JOB 1: Momentum scan + classification (via main.py) ===
+2026-04-26 12:48:43  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:48:44  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:49:01  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:49:03  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:49:03  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:49:09  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:49:09  INFO      Sample row: {'Symbol': 'TATAPOWER.NS', 'WMS': 90.3, 'RS_Raw': 0.28, 'RSI_Raw': nan, 'MFI_Raw': nan, 'CCI_Raw': nan}
+2026-04-26 12:49:09  INFO      Job 1 complete – run_id=4, 14 stocks, 1 picks saved
+2026-04-26 12:49:09  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 12:49:09  INFO      No open positions – monitor skipped.
+2026-04-26 12:49:09  INFO      Done.
+2026-04-26 12:50:44  INFO      --once mode: running both jobs now.
+2026-04-26 12:50:44  INFO      === JOB 1: Momentum scan + classification (via main.py) ===
+2026-04-26 12:50:44  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:50:45  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:51:01  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:51:02  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:51:02  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:51:07  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:51:07  INFO      Sample row: {'Symbol': 'TATAPOWER.NS', 'WMS': 90.3, 'RS_Raw': 0.28, 'RSI_Raw': nan, 'MFI_Raw': nan, 'CCI_Raw': nan}
+2026-04-26 12:51:07  INFO      Job 1 complete – run_id=5, 14 stocks, 1 picks saved
+2026-04-26 12:51:07  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 12:51:07  INFO      No open positions – monitor skipped.
+2026-04-26 12:51:07  INFO      Done.
+2026-04-26 12:57:52  INFO      --once mode: running both jobs now.
+2026-04-26 12:57:52  INFO      === JOB 1: Momentum scan + classification (via main.py) ===
+2026-04-26 12:57:52  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:57:53  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:58:08  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:58:09  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:58:09  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 12:58:15  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 12:58:15  INFO      Scout preview:
+Rank  Symbol                WMS      RS    RSI    MFI     CCI
+?????????????????????????????????????????????????????????????
+1     TATAPOWER.NS        90.30   0.280    nan    nan     nan
+2     PFC.NS              80.90   0.330    nan    nan     nan
+3     NTPC.NS             79.85   0.220    nan    na
+2026-04-26 12:58:15  INFO      Analyst preview:
+SYMBOL: TATAPOWER.NS
+CLASSIFICATION: BUY
+CONFIDENCE: 4
+SECTOR BACKDROP: The energy sector is experiencing a significant tailwind due to increasing demand and favorable government policies. However, the sector is also heavily concentrated in the portfolio, which may pose a risk.
+FUNDAMENTAL HEALTH: TATAPOWER.NS has shown a strong revenue trend, with a growth rate of 15% in the last quarter. The company's margins have also improved, with a net profit margin of 12%. However, the company's debt-to-e
+2026-04-26 12:58:15  INFO      Sample row: {'Symbol': 'TATAPOWER.NS', 'WMS': 90.3, 'RS_Raw': 0.28, 'RSI_Raw': nan, 'MFI_Raw': nan, 'CCI_Raw': nan}
+2026-04-26 12:58:15  INFO      Job 1 complete – run_id=6, 14 stocks, 1 picks saved
+2026-04-26 12:58:15  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 12:58:15  INFO      No open positions – monitor skipped.
+2026-04-26 12:58:15  INFO      Done.
+2026-04-26 13:04:42  INFO      --once mode: running both jobs now.
+2026-04-26 13:04:42  INFO      === JOB 1: Momentum scan + classification (via main.py) ===
+2026-04-26 13:04:42  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:04:43  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:04:59  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:05:00  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:05:00  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:05:00  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:05:00  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:05:02  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:05:02  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:05:09  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:05:09  WARNING   No scan rows parsed — skipping DB save. Check scout output above.
+2026-04-26 13:05:09  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 13:05:09  INFO      No open positions – monitor skipped.
+2026-04-26 13:05:09  INFO      Done.
+2026-04-26 13:16:49  INFO      --once mode: running both jobs now.
+2026-04-26 13:16:49  INFO      === JOB 1: Momentum scan + classification (via main.py) ===
+2026-04-26 13:16:50  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:16:51  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:17:06  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:17:08  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:17:08  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:17:15  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:17:15  INFO      Analyst preview:
+SYMBOL: TATAPOWER.NS
+CLASSIFICATION: BUY
+CONFIDENCE: 4
+SECTOR BACKDROP: The energy sector is experiencing a tailwind due to increasing demand and favorable government policies. However, the sector is also facing headwinds from rising commodity prices and environmental concerns.
+FUNDAMENTAL HEALTH: TATAPOWER.NS has shown a strong revenue trend, with a growth rate of 15% in the last quarter. The company's margins have also improved, with a net profit margin of 12%. However, the company's leverage 
+2026-04-26 13:17:15  INFO      Sample row: {'Symbol': 'TATAPOWER.NS', 'WMS': 90.3, 'RS_Raw': 0.28, 'RSI_Raw': 97.7, 'MFI_Raw': 93.5, 'CCI_Raw': 136.5}
+2026-04-26 13:17:15  INFO      Job 1 complete – run_id=7, 14 stocks, 14 picks saved
+2026-04-26 13:17:15  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 13:17:15  INFO      No open positions – monitor skipped.
+2026-04-26 13:17:15  INFO      Done.
+2026-04-26 13:32:54  INFO      --once mode: running both jobs now.
+2026-04-26 13:32:54  INFO      === JOB 1: Momentum scan + classification (via main.py) ===
+2026-04-26 13:32:55  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:32:55  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:33:17  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:33:18  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:33:18  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:33:25  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:33:25  INFO      Analyst preview:
+SYMBOL: TATAPOWER.NS
+CLASSIFICATION: BUY
+CONFIDENCE: 4
+SECTOR BACKDROP: The energy sector is experiencing a tailwind due to increasing demand and favorable government policies. However, the sector is also facing headwinds from rising commodity prices and environmental concerns.
+FUNDAMENTAL HEALTH: TATAPOWER.NS has shown a strong revenue trend, with a growth rate of 15% in the last quarter. The company's margins have also improved, with a net profit margin of 12%. However, the company's leverage 
+2026-04-26 13:33:25  INFO      Sample row: {'Symbol': 'TATAPOWER.NS', 'WMS': 90.3, 'RS_Raw': 0.28, 'RSI_Raw': 97.7, 'MFI_Raw': 93.5, 'CCI_Raw': 136.5}
+2026-04-26 13:33:25  INFO      Job 1 complete – run_id=8, 14 stocks, 14 picks saved
+2026-04-26 13:33:25  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 13:33:25  INFO      Done.
+2026-04-26 13:45:45  INFO      --once mode: running both jobs now.
+2026-04-26 13:45:45  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 13:45:45  INFO      Running monitor for 4 held positions: TATAPOWER.NS, PFC.NS, NTPC.NS, HINDALCO.NS
+2026-04-26 13:45:46  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:45:47  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:45:47  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=HINDALCO.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=HINDALCO.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 13:45:47  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=NTPC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=NTPC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 13:45:47  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=TATAPOWER.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=TATAPOWER.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 13:45:47  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=PFC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=PFC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 13:45:48  INFO      response: https://grokipedia.com/api/typeahead?query=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 13:45:48  INFO      response: https://www.mojeek.com/search?q=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 13:45:48  INFO      response: https://www.mojeek.com/search?q=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 13:45:48  INFO      response: https://www.mojeek.com/search?q=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 13:45:48  INFO      response: https://yandex.com/search/site/?text=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&web=1&searchid=6535490 200
+2026-04-26 13:45:48  INFO      response: https://grokipedia.com/api/typeahead?query=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 13:45:48  INFO      response: https://grokipedia.com/api/typeahead?query=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 13:45:48  INFO      response: https://grokipedia.com/api/typeahead?query=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 13:45:48  INFO      response: https://html.duckduckgo.com/html/ 202
+2026-04-26 13:45:49  INFO      response: https://search.yahoo.com/search;_ylt=ITuAe5Q6WJR6PFLSttpNh4iT;_ylu=bY-qWHmjWLjnWFhtl7OYxfoXTnoBYFvDQi_4rhxqlzh1BAE?p=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 13:45:49  INFO      response: https://search.yahoo.com/search;_ylt=khmGUX9YT3JI275pdkDjmRvj;_ylu=DKSL7Z9pkTCygtp3WFJTofGl9fmFv0XfKwgVivoTVacbNJI?p=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 13:45:49  INFO      response: https://html.duckduckgo.com/html/ 200
+2026-04-26 13:45:49  INFO      response: https://search.brave.com/search?q=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 200
+2026-04-26 13:45:49  INFO      response: https://html.duckduckgo.com/html/ 202
+2026-04-26 13:45:49  INFO      response: https://search.brave.com/search?q=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 429
+2026-04-26 13:45:50  INFO      response: https://yandex.com/search/site/?text=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&web=1&searchid=2045418 200
+2026-04-26 13:45:50  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:45:52  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:45:52  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:45:55  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:45:55  INFO      Job 2 complete – no RED alerts.
+2026-04-26 13:45:55  INFO      Done.
+2026-04-26 13:57:11  INFO      --once mode: running both jobs now.
+2026-04-26 13:57:11  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 13:57:11  INFO      Running monitor for 4 held positions: TATAPOWER.NS, PFC.NS, NTPC.NS, HINDALCO.NS
+2026-04-26 13:57:11  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:57:12  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:57:13  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=PFC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=PFC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 13:57:13  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=HINDALCO.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=HINDALCO.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 13:57:13  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=TATAPOWER.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=TATAPOWER.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 13:57:13  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=NTPC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=NTPC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 13:57:13  INFO      response: https://html.duckduckgo.com/html/ 202
+2026-04-26 13:57:13  INFO      response: https://html.duckduckgo.com/html/ 202
+2026-04-26 13:57:14  INFO      response: https://search.brave.com/search?q=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 429
+2026-04-26 13:57:14  INFO      response: https://grokipedia.com/api/typeahead?query=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 13:57:14  INFO      response: https://search.yahoo.com/search;_ylt=iC3v-Qtccg5sM1lORkditxrA;_ylu=v4c0ZVnZZaU23FPEcLteDv-765Ivhwub7Mx2GbIrmasZ-40?p=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 13:57:14  INFO      response: https://grokipedia.com/api/typeahead?query=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 13:57:14  INFO      response: https://grokipedia.com/api/typeahead?query=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 13:57:14  INFO      response: https://grokipedia.com/api/typeahead?query=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 13:57:14  INFO      response: https://www.mojeek.com/search?q=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 13:57:15  INFO      response: https://search.brave.com/search?q=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 429
+2026-04-26 13:57:15  INFO      Error in engine yahoo: DDGSException("RequestError: RequestError('error sending request for url (https://search.yahoo.com/search;_ylt=VDaPP2HIKfQjVsM88kgHXYRB;_ylu=lHL4RGEtoAEk34FDtTKzSmHZGuq4V__IItP9VVfNzHlpYwg?p=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y)', 'https://search.yahoo.com/search;_ylt=VDaPP2HIKfQjVsM88kgHXYRB;_ylu=lHL4RGEtoAEk34FDtTKzSmHZGuq4V__IItP9VVfNzHlpYwg?p=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y')")
+2026-04-26 13:57:15  INFO      response: https://www.mojeek.com/search?q=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 13:57:15  INFO      response: https://search.yahoo.com/search;_ylt=Nel7B77pVqPJIkiEUdMzl9Aq;_ylu=U-Y1X6_WXfeo67VCbrzlqrgYlIWKZanWjfJAVcwQ4klXdEU?p=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 13:57:15  INFO      response: https://search.brave.com/search?q=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 429
+2026-04-26 13:57:15  INFO      response: https://html.duckduckgo.com/html/ 202
+2026-04-26 13:57:16  INFO      response: https://www.mojeek.com/search?q=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 13:57:16  INFO      response: https://search.yahoo.com/search;_ylt=7QlaHG-uizthRYW0OjKqt0U9;_ylu=9LtA0lusFbttfGZwtNT9RlfFLTpX_0QGilDOkHhLx8EkvQI?p=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 13:57:16  INFO      response: https://yandex.com/search/site/?text=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&web=1&searchid=2744447 200
+2026-04-26 13:57:16  INFO      response: https://yandex.com/search/site/?text=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&web=1&searchid=6121304 200
+2026-04-26 13:57:16  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:57:17  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:57:17  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=NTPC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=NTPC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 13:57:17  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=HINDALCO.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=HINDALCO.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 13:57:17  INFO      response: https://search.brave.com/search?q=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 429
+2026-04-26 13:57:17  INFO      response: https://search.brave.com/search?q=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 429
+2026-04-26 13:57:18  INFO      response: https://grokipedia.com/api/typeahead?query=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 13:57:18  INFO      response: https://grokipedia.com/api/typeahead?query=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 13:57:18  INFO      response: https://www.mojeek.com/search?q=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 13:57:18  INFO      response: https://yandex.com/search/site/?text=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&web=1&searchid=2023571 200
+2026-04-26 13:57:19  INFO      response: https://yandex.com/search/site/?text=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&web=1&searchid=1486933 200
+2026-04-26 13:57:19  INFO      response: https://search.yahoo.com/search;_ylt=ZYIwTEHwPrWEkf4qUBlRMESU;_ylu=vBIM-L1CgXivtb3zI0JeSoCcFqOLG2Lu3mV4UnitR_20Apo?p=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 13:57:20  INFO      response: https://search.yahoo.com/search;_ylt=sD14AmJ_9EFnr474U4qs7Y1e;_ylu=AwSV1OhKV-qA-BgEocwvvn5_vcySJ0c6kZUcXLkGCcaFQGU?p=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 13:57:20  INFO      response: https://html.duckduckgo.com/html/ 202
+2026-04-26 13:57:20  INFO      response: https://www.mojeek.com/search?q=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 13:57:20  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:57:22  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:57:22  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 13:57:25  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 13:57:25  INFO      Job 2 complete – no RED alerts.
+2026-04-26 13:57:25  INFO      Done.
+2026-04-26 17:34:50  INFO      --once mode: running both jobs now.
+2026-04-26 17:34:50  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 17:34:50  INFO      Running monitor for 4 held positions: TATAPOWER.NS, PFC.NS, NTPC.NS, HINDALCO.NS
+2026-04-26 17:34:50  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 17:34:51  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 17:34:52  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=NTPC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=NTPC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 17:34:52  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=TATAPOWER.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=TATAPOWER.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 17:34:52  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=PFC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=PFC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 17:34:52  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=HINDALCO.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=HINDALCO.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 17:34:53  INFO      response: https://search.yahoo.com/search;_ylt=ggNe3feeNaryDh2kkwCv_4Vb;_ylu=b7dLxfAMIu95x--7b2xBLrxhptqwbPxULTWlrEEbJdv2Hm4?p=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 17:34:53  INFO      response: https://search.yahoo.com/search;_ylt=i8w-tnELR4dbhVeHzyKZQaY_;_ylu=QIz16E3zhLfHrJMZKtEiMTzUU7JoTMhjtDhJ6cuAik6Oa9o?p=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 17:34:53  INFO      response: https://grokipedia.com/api/typeahead?query=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 17:34:53  INFO      response: https://grokipedia.com/api/typeahead?query=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 17:34:53  INFO      response: https://yandex.com/search/site/?text=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&web=1&searchid=2717001 200
+2026-04-26 17:34:53  INFO      response: https://search.brave.com/search?q=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 200
+2026-04-26 17:34:53  INFO      response: https://grokipedia.com/api/typeahead?query=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 17:34:53  INFO      response: https://grokipedia.com/api/typeahead?query=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 17:34:54  INFO      response: https://www.mojeek.com/search?q=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 17:34:54  INFO      response: https://html.duckduckgo.com/html/ 200
+2026-04-26 17:34:54  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 17:34:56  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 17:34:56  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 17:34:59  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 17:34:59  INFO      Job 2 complete – no RED alerts.
+2026-04-26 17:34:59  INFO      Done.
+2026-04-26 17:35:46  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 17:35:46  INFO      Running monitor for 4 held positions: TATAPOWER.NS, PFC.NS, NTPC.NS, HINDALCO.NS
+2026-04-26 17:35:46  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 17:35:48  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 17:35:48  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=HINDALCO.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=HINDALCO.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 17:35:48  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=NTPC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=NTPC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 17:35:48  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=TATAPOWER.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=TATAPOWER.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 17:35:48  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=PFC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=PFC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 17:35:48  INFO      response: https://html.duckduckgo.com/html/ 202
+2026-04-26 17:35:49  INFO      response: https://search.yahoo.com/search;_ylt=tng0w-EfZvwFSAjCdvLExxto;_ylu=T6o9s45OgIamSjMDXwETveBV4ZtV9HCDzqQZzghgBWgdQNM?p=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 17:35:49  INFO      response: https://search.brave.com/search?q=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 429
+2026-04-26 17:35:49  INFO      response: https://grokipedia.com/api/typeahead?query=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 17:35:49  INFO      response: https://grokipedia.com/api/typeahead?query=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 17:35:49  INFO      response: https://grokipedia.com/api/typeahead?query=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 17:35:49  INFO      response: https://yandex.com/search/site/?text=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&web=1&searchid=7620830 200
+2026-04-26 17:35:49  INFO      response: https://search.brave.com/search?q=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 429
+2026-04-26 17:35:49  INFO      response: https://www.mojeek.com/search?q=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 17:35:50  INFO      response: https://html.duckduckgo.com/html/ 202
+2026-04-26 17:35:50  INFO      response: https://www.mojeek.com/search?q=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 17:35:50  INFO      response: https://search.yahoo.com/search;_ylt=9_NnLxKhc3f3NfLTYG8tzuCX;_ylu=wWd6B-FYV--8aTAJHbWmFJNVLweU3iAe8y2vyiq-zwShB9U?p=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 17:35:50  INFO      response: https://search.yahoo.com/search;_ylt=9suGzzYheSdeFmPSS94aVaZ3;_ylu=t1l8lrpGZBmyGqy4oFks4Zxmlqpbh0gP7q7o5BM6GGniilM?p=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 17:35:51  INFO      response: https://grokipedia.com/api/typeahead?query=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 17:35:51  INFO      response: https://search.yahoo.com/search;_ylt=souZXYDrPtB-x-l5qKMH9RY7;_ylu=SlENqwYHv1cKHNizzC3sBh8XM41HF3lf4BpEMIdElSQsdDA?p=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 17:35:52  INFO      response: https://yandex.com/search/site/?text=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&web=1&searchid=6322949 200
+2026-04-26 17:35:53  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 17:35:54  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 17:35:55  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 17:35:58  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 17:35:58  INFO      Job 2 complete – no RED alerts.
+2026-04-26 17:51:42  INFO      === JOB 1: Momentum scan + classification (via main.py) ===
+2026-04-26 17:51:42  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 17:51:43  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 17:53:47  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 17:53:49  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 17:53:49  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 17:53:56  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 17:53:56  INFO      Job 1 complete – run_id=9, 20 stocks, 20 picks saved
+2026-04-26 17:57:06  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 17:57:06  INFO      Running monitor for 4 held positions: TATAPOWER.NS, PFC.NS, NTPC.NS, HINDALCO.NS
+2026-04-26 17:57:06  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 17:57:07  ERROR     Job 2 failed: litellm.RateLimitError: RateLimitError: GroqException - {"error":{"message":"Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kq03f015fewr3taxdx31qxh7` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99780, Requested 4872. Please try again in 1h6m59.328s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing","type":"tokens","code":"rate_limit_exceeded"}}
+Traceback (most recent call last):
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 235, in _make_common_sync_call
+    response = sync_httpx_client.post(
+        url=api_base,
+    ...<8 lines>...
+        logging_obj=logging_obj,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\llms\custom_httpx\http_handler.py", line 1047, in post
+    raise e
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\llms\custom_httpx\http_handler.py", line 1029, in post
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\httpx\_models.py", line 829, in raise_for_status
+    raise HTTPStatusError(message, request=request, response=self)
+httpx.HTTPStatusError: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\main.py", line 2263, in completion
+    response = base_llm_http_handler.completion(
+        model=model,
+    ...<14 lines>...
+        client=client,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 559, in completion
+    response = self._make_common_sync_call(
+        sync_httpx_client=sync_httpx_client,
+    ...<7 lines>...
+        logging_obj=logging_obj,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 260, in _make_common_sync_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 4720, in _handle_error
+    raise provider_config.get_error_class(
+    ...<3 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: {"error":{"message":"Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kq03f015fewr3taxdx31qxh7` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99780, Requested 4872. Please try again in 1h6m59.328s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing","type":"tokens","code":"rate_limit_exceeded"}}
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\gopal\GOPAL-SHARE\Stock-market-Project\Momentum-Tracker\scheduler.py", line 151, in job_monitor
+    report = run_monitor(held)
+  File "C:\Users\gopal\GOPAL-SHARE\Stock-market-Project\Momentum-Tracker\portfolio_monitor.py", line 332, in run_monitor
+    result = monitor_crew.kickoff()
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\crew.py", line 956, in kickoff
+    result = self._run_sequential_process()
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\crew.py", line 1399, in _run_sequential_process
+    return self._execute_tasks(self.tasks)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\crew.py", line 1496, in _execute_tasks
+    task_output = task.execute_sync(
+        agent=exec_data.agent,
+        context=context,
+        tools=exec_data.tools,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\task.py", line 565, in execute_sync
+    return self._execute_core(agent, context, tools)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\task.py", line 862, in _execute_core
+    raise e  # Re-raise the exception after emitting the event
+    ^^^^^^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\task.py", line 769, in _execute_core
+    result = agent.execute_task(
+        task=self,
+        context=context,
+        tools=tools,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agent\core.py", line 782, in execute_task
+    result = self._handle_execution_error(e, task, context, tools)
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agent\core.py", line 691, in _handle_execution_error
+    self._check_execution_error(e, task)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agent\core.py", line 658, in _check_execution_error
+    raise e
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agent\core.py", line 769, in execute_task
+    result = self._execute_without_timeout(task_prompt, task)
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agent\core.py", line 836, in _execute_without_timeout
+    self.agent_executor.invoke(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        {
+        ^
+    ...<4 lines>...
+        }
+        ^
+    ),
+    ^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agents\crew_agent_executor.py", line 212, in invoke
+    formatted_answer = self._invoke_loop()
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agents\crew_agent_executor.py", line 307, in _invoke_loop
+    return self._invoke_loop_native_tools()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agents\crew_agent_executor.py", line 541, in _invoke_loop_native_tools
+    raise e
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agents\crew_agent_executor.py", line 480, in _invoke_loop_native_tools
+    answer = get_llm_response(
+        llm=cast("BaseLLM", self.llm),
+    ...<9 lines>...
+        verbose=self.agent.verbose,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\utilities\agent_utils.py", line 473, in get_llm_response
+    raise e
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\utilities\agent_utils.py", line 463, in get_llm_response
+    answer = llm.call(
+        messages,
+    ...<5 lines>...
+        response_model=response_model,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\llm.py", line 1778, in call
+    result = self._handle_non_streaming_response(
+        params=params,
+    ...<4 lines>...
+        response_model=response_model,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\llm.py", line 1175, in _handle_non_streaming_response
+    response = litellm.completion(**params)
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\utils.py", line 1771, in wrapper
+    raise e
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\utils.py", line 1592, in wrapper
+    result = original_function(*args, **kwargs)
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\litellm_core_utils\exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\litellm_core_utils\exception_mapping_utils.py", line 392, in exception_type
+    raise RateLimitError(
+    ...<4 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: GroqException - {"error":{"message":"Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kq03f015fewr3taxdx31qxh7` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99780, Requested 4872. Please try again in 1h6m59.328s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing","type":"tokens","code":"rate_limit_exceeded"}}
+
+2026-04-26 18:38:23  INFO      === JOB 2: Portfolio monitor (via portfolio_monitor.py) ===
+2026-04-26 18:38:23  INFO      Running monitor for 4 held positions: TATAPOWER.NS, PFC.NS, NTPC.NS, HINDALCO.NS
+2026-04-26 18:38:23  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 18:38:24  INFO      Wrapper: Completed Call, calling success_handler
+2026-04-26 18:38:24  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=PFC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=PFC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 18:38:24  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=TATAPOWER.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=TATAPOWER.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 18:38:24  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=HINDALCO.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=HINDALCO.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 18:38:24  INFO      Error in engine wikipedia: DDGSException("ConnectError: ConnectError('error sending request for url (https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=NTPC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com)', 'https://wt.wikipedia.org/w/api.php?action=opensearch&profile=fuzzy&limit=1&search=NTPC.NS%20NSE%20news%20site%3Aeconomictimes.com%20OR%20site%3Amoneycontrol.com%20OR%20site%3Abseindia.com')")
+2026-04-26 18:38:25  INFO      Error in engine yahoo: DDGSException("RequestError: RequestError('error sending request for url (https://search.yahoo.com/search;_ylt=qootFFHc86OF7KnqEo1iFX0s;_ylu=nkRwe4KGIV349gCXnDtzJAjFLU0zhye1JG3DlRR3lmw4QG4?p=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y)', 'https://search.yahoo.com/search;_ylt=qootFFHc86OF7KnqEo1iFX0s;_ylu=nkRwe4KGIV349gCXnDtzJAjFLU0zhye1JG3DlRR3lmw4QG4?p=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y')")
+2026-04-26 18:38:25  INFO      response: https://search.yahoo.com/search;_ylt=Mkb7O4GkiH3anm2bNmbM-QeF;_ylu=zgAyldO2-Bq7hWdclyB-IehbRFP1chRTUQLLL-TBwSx_4z0?p=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 18:38:25  INFO      response: https://www.mojeek.com/search?q=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 18:38:25  INFO      response: https://www.mojeek.com/search?q=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com 403
+2026-04-26 18:38:25  INFO      response: https://html.duckduckgo.com/html/ 200
+2026-04-26 18:38:25  INFO      response: https://grokipedia.com/api/typeahead?query=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 18:38:25  INFO      response: https://grokipedia.com/api/typeahead?query=HINDALCO.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 18:38:25  INFO      response: https://grokipedia.com/api/typeahead?query=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 18:38:26  INFO      response: https://grokipedia.com/api/typeahead?query=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&limit=1 200
+2026-04-26 18:38:26  INFO      response: https://search.yahoo.com/search;_ylt=MHjGrfgDSUIfIAfQu3CZOZpW;_ylu=ZUXvP4QsqUk1XpH-S6xuimJrPgCtbwbshZ6rsmRLGLvSvAU?p=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&btf=y 200
+2026-04-26 18:38:26  INFO      response: https://search.brave.com/search?q=NTPC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 200
+2026-04-26 18:38:26  INFO      response: https://search.brave.com/search?q=TATAPOWER.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 200
+2026-04-26 18:38:27  INFO      response: https://search.brave.com/search?q=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&source=web&tf=py 429
+2026-04-26 18:38:27  INFO      response: https://yandex.com/search/site/?text=PFC.NS+NSE+news+site%3Aeconomictimes.com+OR+site%3Amoneycontrol.com+OR+site%3Abseindia.com&web=1&searchid=1700658 200
+2026-04-26 18:38:28  INFO      response: https://html.duckduckgo.com/html/ 202
+2026-04-26 18:38:28  INFO      
+LiteLLM completion() model= llama-3.3-70b-versatile; provider = groq
+2026-04-26 18:38:28  ERROR     Job 2 failed: litellm.RateLimitError: RateLimitError: GroqException - {"error":{"message":"Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kq03f015fewr3taxdx31qxh7` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 98379, Requested 3711. Please try again in 30m5.759999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing","type":"tokens","code":"rate_limit_exceeded"}}
+Traceback (most recent call last):
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 235, in _make_common_sync_call
+    response = sync_httpx_client.post(
+        url=api_base,
+    ...<8 lines>...
+        logging_obj=logging_obj,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\llms\custom_httpx\http_handler.py", line 1047, in post
+    raise e
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\llms\custom_httpx\http_handler.py", line 1029, in post
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\httpx\_models.py", line 829, in raise_for_status
+    raise HTTPStatusError(message, request=request, response=self)
+httpx.HTTPStatusError: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\main.py", line 2263, in completion
+    response = base_llm_http_handler.completion(
+        model=model,
+    ...<14 lines>...
+        client=client,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 559, in completion
+    response = self._make_common_sync_call(
+        sync_httpx_client=sync_httpx_client,
+    ...<7 lines>...
+        logging_obj=logging_obj,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 260, in _make_common_sync_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 4720, in _handle_error
+    raise provider_config.get_error_class(
+    ...<3 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: {"error":{"message":"Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kq03f015fewr3taxdx31qxh7` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 98379, Requested 3711. Please try again in 30m5.759999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing","type":"tokens","code":"rate_limit_exceeded"}}
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\gopal\GOPAL-SHARE\Stock-market-Project\Momentum-Tracker\scheduler.py", line 151, in job_monitor
+    report = run_monitor(held)
+  File "C:\Users\gopal\GOPAL-SHARE\Stock-market-Project\Momentum-Tracker\portfolio_monitor.py", line 332, in run_monitor
+    result = monitor_crew.kickoff()
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\crew.py", line 956, in kickoff
+    result = self._run_sequential_process()
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\crew.py", line 1399, in _run_sequential_process
+    return self._execute_tasks(self.tasks)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\crew.py", line 1496, in _execute_tasks
+    task_output = task.execute_sync(
+        agent=exec_data.agent,
+        context=context,
+        tools=exec_data.tools,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\task.py", line 565, in execute_sync
+    return self._execute_core(agent, context, tools)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\task.py", line 862, in _execute_core
+    raise e  # Re-raise the exception after emitting the event
+    ^^^^^^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\task.py", line 769, in _execute_core
+    result = agent.execute_task(
+        task=self,
+        context=context,
+        tools=tools,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agent\core.py", line 782, in execute_task
+    result = self._handle_execution_error(e, task, context, tools)
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agent\core.py", line 691, in _handle_execution_error
+    self._check_execution_error(e, task)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agent\core.py", line 658, in _check_execution_error
+    raise e
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agent\core.py", line 769, in execute_task
+    result = self._execute_without_timeout(task_prompt, task)
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agent\core.py", line 836, in _execute_without_timeout
+    self.agent_executor.invoke(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        {
+        ^
+    ...<4 lines>...
+        }
+        ^
+    ),
+    ^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agents\crew_agent_executor.py", line 212, in invoke
+    formatted_answer = self._invoke_loop()
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agents\crew_agent_executor.py", line 307, in _invoke_loop
+    return self._invoke_loop_native_tools()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agents\crew_agent_executor.py", line 541, in _invoke_loop_native_tools
+    raise e
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\agents\crew_agent_executor.py", line 480, in _invoke_loop_native_tools
+    answer = get_llm_response(
+        llm=cast("BaseLLM", self.llm),
+    ...<9 lines>...
+        verbose=self.agent.verbose,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\utilities\agent_utils.py", line 473, in get_llm_response
+    raise e
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\utilities\agent_utils.py", line 463, in get_llm_response
+    answer = llm.call(
+        messages,
+    ...<5 lines>...
+        response_model=response_model,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\llm.py", line 1778, in call
+    result = self._handle_non_streaming_response(
+        params=params,
+    ...<4 lines>...
+        response_model=response_model,
+    )
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\crewai\llm.py", line 1175, in _handle_non_streaming_response
+    response = litellm.completion(**params)
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\utils.py", line 1771, in wrapper
+    raise e
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\utils.py", line 1592, in wrapper
+    result = original_function(*args, **kwargs)
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\litellm_core_utils\exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "C:\Users\gopal\.conda\envs\Finance_313\Lib\site-packages\litellm\litellm_core_utils\exception_mapping_utils.py", line 392, in exception_type
+    raise RateLimitError(
+    ...<4 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: GroqException - {"error":{"message":"Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kq03f015fewr3taxdx31qxh7` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 98379, Requested 3711. Please try again in 30m5.759999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing","type":"tokens","code":"rate_limit_exceeded"}}
+

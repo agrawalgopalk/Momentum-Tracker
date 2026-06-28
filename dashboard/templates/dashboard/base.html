@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Momentum Portfolio System{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div id="app-container">
+        <!-- Sidebar -->
+        <aside>
+            <div class="sidebar-header">
+                <span class="logo-icon"><i class="fa-solid fa-chart-line"></i></span>
+                <span class="logo-text">Momentum Tracker</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="{% url 'overview' %}" class="nav-link {% if request.resolver_match.url_name == 'overview' %}active{% endif %}">
+                    <i class="fa-solid fa-house"></i> Overview
+                </a>
+                <a href="{% url 'trade' %}" class="nav-link {% if request.resolver_match.url_name == 'trade' %}active{% endif %}">
+                    <i class="fa-solid fa-wallet"></i> Execute Trades
+                </a>
+                <a href="{% url 'add_transaction' %}" class="nav-link {% if request.resolver_match.url_name == 'add_transaction' %}active{% endif %}">
+                    <i class="fa-solid fa-file-import"></i> Add Transaction
+                </a>
+                <a href="{% url 'scan' %}" class="nav-link {% if request.resolver_match.url_name == 'scan' %}active{% endif %}">
+                    <i class="fa-solid fa-magnifying-glass"></i> Run Scan
+                </a>
+                <a href="{% url 'scan_custom' %}" class="nav-link {% if request.resolver_match.url_name == 'scan_custom' %}active{% endif %}">
+                    <i class="fa-solid fa-file-arrow-up"></i> Custom Scorer
+                </a>
+                <a href="{% url 'history' %}" class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
+                    <i class="fa-solid fa-history"></i> Scan History & Reports
+                </a>
+                <a href="{% url 'alerts' %}" class="nav-link {% if request.resolver_match.url_name == 'alerts' %}active{% endif %}">
+                    <i class="fa-solid fa-bell"></i> Alert Log
+                </a>
+                <a href="{% url 'performance' %}" class="nav-link {% if request.resolver_match.url_name == 'performance' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie"></i> Performance
+                </a>
+                <a href="{% url 'momentum' %}" class="nav-link {% if request.resolver_match.url_name == 'momentum' %}active{% endif %}">
+                    <i class="fa-solid fa-gauge-high"></i> Momentum Tracker
+                </a>
+                <a href="{% url 'rebalance' %}" class="nav-link {% if request.resolver_match.url_name == 'rebalance' %}active{% endif %}">
+                    <i class="fa-solid fa-scale-balanced"></i> Rebalance Assistant
+                </a>
+                <a href="{% url 'backtest' %}" class="nav-link {% if request.resolver_match.url_name == 'backtest' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-area"></i> Backtest Panel
+                </a>
+                {% if user.is_superuser %}
+                <a href="{% url 'settings' %}" class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                    <i class="fa-solid fa-sliders"></i> Settings
+                </a>
+                {% endif %}
+            </nav>
+            
+            <div class="sidebar-footer">
+                {% if user.is_authenticated %}
+                <div class="user-badge">
+                    <div class="username" title="{{ user.username }}"><i class="fa-solid fa-user-circle"></i> {{ user.username }}</div>
+                    <a href="{% url 'logout' %}" class="logout-btn"><i class="fa-solid fa-sign-out-alt"></i> Logout</a>
+                </div>
+                {% endif %}
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main>
+            <!-- Messages / Toast notifications -->
+            {% if messages %}
+            <div class="alert-messages">
+                {% for message in messages %}
+                <div class="django-alert django-alert-{{ message.tags }}">
+                    <span>{{ message }}</span>
+                    <button style="background: none; border: none; color: inherit; cursor: pointer; padding: 0 4px; font-weight: bold;" onclick="this.parentElement.remove();">&times;</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Page Block Content -->
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

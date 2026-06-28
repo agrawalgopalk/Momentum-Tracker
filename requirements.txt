@@ -1,6 +1,6 @@
 # Core UI and Frameworks
 streamlit==1.56.0
-crewai==1.14.3
+crewai[google-genai]==1.14.3
 crewai-tools==1.14.3
 
 # Data and APIs
@@ -25,3 +25,8 @@ langchain-core==1.3.2
 langchain-community==0.4.1
 ddgs==9.14.1
 litellm==1.83.0
+
+# Django Web App conversion
+django==5.1.5
+markdown==3.7
+google-genai==0.4.0

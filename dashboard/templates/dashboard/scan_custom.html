@@ -1,0 +1,187 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Custom Universe Scorer - Momentum Tracker{% endblock %}
+
+{% block extra_head %}
+<style>
+    .scorer-container {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        color: #f3f4f6;
+    }
+    
+    .header-section h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(135deg, #60a5fa, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .glass-card {
+        background: rgba(17, 24, 39, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .form-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #9ca3af;
+    }
+
+    .file-input {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        padding: 16px;
+        color: #e5e7eb;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.2s ease;
+        text-align: center;
+    }
+
+    .file-input:hover {
+        border-color: #3b82f6;
+        background: rgba(59, 130, 246, 0.03);
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: #ffffff;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .premium-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 14px;
+        margin-top: 12px;
+    }
+
+    .premium-table th {
+        padding: 14px 16px;
+        font-weight: 600;
+        color: #9ca3af;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .premium-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: #e5e7eb;
+    }
+
+    .premium-table tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="scorer-container">
+    
+    <div class="header-section">
+        <h1>Score Custom Stock Universe</h1>
+        <p style="color: #9ca3af; margin: 4px 0 0 0;">Upload an Excel or CSV file containing custom stock ticker symbols to run the momentum scorer on-the-fly</p>
+    </div>
+
+    <!-- Upload Panel -->
+    <div class="glass-card">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-layout">
+                <div class="form-group">
+                    <label for="custom_file">Select Tickers File (Excel or CSV)</label>
+                    <p style="font-size: 13px; color: #9ca3af; margin: 0 0 8px 0;">
+                        The uploaded spreadsheet must contain a column named <strong>Symbol</strong> or <strong>symbol</strong> with stock tickers (e.g., RELIANCE, TCS, INFY). Suffixes like .NS will be auto-appended if missing.
+                    </p>
+                    <input type="file" name="custom_file" id="custom_file" class="file-input" accept=".xlsx,.xls,.csv" required>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                <button type="submit" class="submit-btn">
+                    <i class="fa-solid fa-play"></i> Calculate Momentum Scores
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if results %}
+    <!-- Custom Scored Results -->
+    <div class="glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 style="margin: 0; font-size: 20px;"><i class="fa-solid fa-square-poll-vertical"></i> Ranked Custom Recommendations</h2>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Rank</th>
+                        <th>Symbol</th>
+                        <th>WMS Score</th>
+                        <th>Relative Strength (RS_Raw)</th>
+                        <th>RSI (14d)</th>
+                        <th>MFI (14d)</th>
+                        <th>CCI (20d)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in results %}
+                    <tr>
+                        <td style="font-weight: 700; color: #9ca3af;">{{ forloop.counter }}</td>
+                        <td style="font-weight: 700; color: #60a5fa;">{{ row.symbol }}</td>
+                        <td style="font-weight: 700; color: #34d399; font-size: 15px;">{{ row.wms }}</td>
+                        <td>{{ row.rs }}</td>
+                        <td>{{ row.rsi }}</td>
+                        <td>{{ row.mfi }}</td>
+                        <td>{{ row.cci }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Momentum Portfolio System</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="margin: 0; padding: 0;">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo"><i class="fa-solid fa-chart-line"></i> Momentum</div>
+                <div class="auth-subtitle">Create a new account</div>
+            </div>
+            
+            {% if messages %}
+            <div class="alert-messages" style="margin-bottom: 20px;">
+                {% for message in messages %}
+                <div class="django-alert django-alert-{{ message.tags }}" style="padding: 10px 14px; font-size: 13px;">
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <form method="POST" action="{% url 'signup' %}">
+                {% csrf_token %}
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="email">Email (Optional)</label>
+                    <input type="email" id="email" name="email" placeholder="Enter email address">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a password" required>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Repeat the password" required>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 14px;">
+                    <i class="fa-solid fa-user-plus"></i> Sign Up
+                </button>
+            </form>
+            
+            <div class="auth-footer-text">
+                Already have an account? <a href="{% url 'login' %}" class="auth-link">Log In</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -24,3 +24,10 @@ def clean_text(text: str) -> str:
     text = re.sub(r'[🔴🟡🟢]', '', text)
     # Strip whitespace, quotes, and common arrows/delimiters that might linger
     return text.replace("→", "").replace('"', '').strip()
+
+def normalize_symbol(symbol: str) -> str:
+    """Consistently formats ticker symbols (e.g. INFY -> INFY.NS)."""
+    sym = symbol.strip().upper()
+    if not sym:
+        return ""
+    return sym if "." in sym else f"{sym}.NS"

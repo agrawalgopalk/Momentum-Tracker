@@ -1,0 +1,611 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Backtest Simulation - Momentum Tracker{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .backtest-container {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        color: #f3f4f6;
+    }
+    
+    .header-section h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(135deg, #f59e0b, #ef4444);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .glass-card {
+        background: rgba(17, 24, 39, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .form-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+    }
+
+    @media (max-width: 1024px) {
+        .form-layout {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .form-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #9ca3af;
+    }
+
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 14px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        border-radius: 6px;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .kpi-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+    }
+
+    .kpi-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #9ca3af;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: #ffffff;
+    }
+
+    .kpi-sub {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 4px;
+    }
+
+    .trend-up { color: #34d399; }
+    .trend-down { color: #f87171; }
+
+    .premium-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 13px;
+        margin-top: 12px;
+    }
+
+    .premium-table th {
+        padding: 12px 14px;
+        font-weight: 600;
+        color: #9ca3af;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .premium-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: #e5e7eb;
+    }
+
+    .premium-table tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .spinner-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        text-align: center;
+    }
+
+    .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border-left-color: #f59e0b;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .download-btn {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .download-btn:hover {
+        background: #f59e0b;
+        border-color: #f59e0b;
+    }
+
+    .btn-scenario {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 8px 16px;
+        border-radius: 6px;
+        color: #e5e7eb;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-scenario:hover {
+        background: rgba(245, 158, 11, 0.15);
+        border-color: #f59e0b;
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="backtest-container">
+    
+    <div class="header-section">
+        <h1>Backtest Simulation Engine</h1>
+        <p style="color: #9ca3af; margin: 4px 0 0 0;">Run historical backtests of the momentum strategy over custom date ranges and verify performance metrics</p>
+    </div>
+
+    <!-- Configuration Panel -->
+    <div class="glass-card" id="config-panel" style="{% if backtest_running %}display: none;{% endif %}">
+        <h2 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;"><i class="fa-solid fa-sliders"></i> Backtest Configuration</h2>
+        
+        <form method="POST" id="backtest-form">
+            {% csrf_token %}
+            <div class="form-layout">
+                
+                <!-- Category Select -->
+                <div class="form-group">
+                    <label for="category">Stock Universe Category</label>
+                    <select name="category" id="category">
+                        {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Initial Capital -->
+                <div class="form-group">
+                    <label for="capital">Initial Capital (₹)</label>
+                    <input type="number" name="capital" id="capital" value="1000000" min="10000" required>
+                </div>
+                
+                <!-- Top N -->
+                <div class="form-group">
+                    <label for="top_n">Portfolio Size (Top N)</label>
+                    <input type="number" name="top_n" id="top_n" value="20" min="5" max="50" required>
+                </div>
+                
+                <!-- Start Date -->
+                <div class="form-group">
+                    <label for="start_date">Start Date</label>
+                    <input type="date" name="start_date" id="start_date" value="2021-01-01" required>
+                </div>
+                
+                <!-- End Date -->
+                <div class="form-group">
+                    <label for="end_date">End Date</label>
+                    <input type="date" name="end_date" id="end_date" value="2026-01-01" required>
+                </div>
+                
+                <!-- Rebalance Freq -->
+                <div class="form-group">
+                    <label for="rebalance_freq">Rebalance Frequency</label>
+                    <select name="rebalance_freq" id="rebalance_freq">
+                        <option value="W">Weekly (W)</option>
+                        <option value="M" selected>Monthly (M)</option>
+                        <option value="Q">Quarterly (Q)</option>
+                        <option value="A">Annually (A)</option>
+                    </select>
+                </div>
+                
+                <!-- Transaction Cost -->
+                <div class="form-group">
+                    <label for="transaction_cost">Transaction Cost (e.g. 0.001 = 0.1%)</label>
+                    <input type="number" step="0.0001" name="transaction_cost" id="transaction_cost" value="0.001" min="0" max="0.05" required>
+                </div>
+                
+            </div>
+            
+            <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn-scenario" onclick="setQuickScenario(1)">Scenario: 1y Lookback</button>
+                    <button type="button" class="btn-scenario" onclick="setQuickScenario(3)">Scenario: 3y Lookback</button>
+                    <button type="button" class="btn-scenario" onclick="setQuickScenario(5)">Scenario: 5y Lookback</button>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fa-solid fa-play"></i> Start Backtest Run
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Running Panel -->
+    <div class="glass-card spinner-container" id="loading-panel" style="{% if not backtest_running %}display: none;{% endif %}">
+        <div class="spinner"></div>
+        <h3 style="color: #ffffff; font-size: 18px;">Simulation in Progress</h3>
+        <p style="color: var(--text-secondary); max-width: 450px; line-height: 1.6; margin-top: 10px;">
+            The backtester is executing trade recommendations step-by-step through historical records. 
+            Calculating ranks, scaling portfolio allocations, tracking idle-cash returns, and formatting curves.
+            <br><br>
+            This can take up to <strong>1 minute</strong>.
+        </p>
+    </div>
+
+    <!-- Error Panel -->
+    <div class="glass-card" id="error-panel" style="display: none; border-color: rgba(239, 68, 68, 0.4);">
+        <h3 style="color: #f87171; margin-top: 0;"><i class="fa-solid fa-circle-exclamation"></i> Backtest Run Failed</h3>
+        <p id="error-msg" style="color: #e5e7eb; line-height: 1.5;"></p>
+        <button class="btn-scenario" style="margin-top: 10px;" onclick="resetBacktestPage()">Configure New Run</button>
+    </div>
+
+    <!-- Results Panel -->
+    <div id="results-panel" style="{% if not results %}display: none;{% endif %} display: flex; flex-direction: column; gap: 24px;">
+        
+        <!-- KPI Row -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Strategy CAGR</div>
+                <div class="kpi-value" id="kpi-cagr">{% if results %}{{ results.cagr }}%{% endif %}</div>
+                <div class="kpi-sub" id="kpi-bm-cagr">Benchmark: {% if results %}{{ results.bm_cagr }}%{% endif %}</div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-label">Total Return</div>
+                <div class="kpi-value" id="kpi-total-return">{% if results %}{{ results.total_return }}%{% endif %}</div>
+                <div class="kpi-sub" id="kpi-bm-return">Benchmark: {% if results %}{{ results.bm_return }}%{% endif %}</div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-label">Win Rate</div>
+                <div class="kpi-value" id="kpi-win-rate">{% if results %}{{ results.win_rate }}%{% endif %}</div>
+                <div class="kpi-sub">Profitable trades</div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-label">Max Drawdown</div>
+                <div class="kpi-value trend-down" id="kpi-drawdown">{% if results %}-{{ results.max_drawdown }}%{% endif %}</div>
+                <div class="kpi-sub">Peak to trough drop</div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-label">Total Trades</div>
+                <div class="kpi-value" id="kpi-trades">{% if results %}{{ results.total_trades }}{% endif %}</div>
+                <div class="kpi-sub">Executions</div>
+            </div>
+        </div>
+
+        <!-- Equity Curve Chart -->
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; font-size: 18px;"><i class="fa-solid fa-chart-line"></i> Performance Equity Curve</h3>
+                <a href="{% url 'backtest_download_report' %}" class="download-btn" id="btn-excel-download">
+                    <i class="fa-solid fa-download"></i> Download Simulation Excel
+                </a>
+            </div>
+            <div style="position: relative; height: 400px; width: 100%;">
+                <canvas id="backtestChart" style="height: 100%; width: 100%;"></canvas>
+            </div>
+        </div>
+
+        <!-- Transactions Log -->
+        <div class="glass-card">
+            <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 18px;"><i class="fa-solid fa-list-check"></i> Executed Transactions Log (Latest 100)</h3>
+            <div style="overflow-x: auto; max-height: 400px; overflow-y: auto;">
+                <table class="premium-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Symbol</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Value (₹)</th>
+                            <th>P&L (₹) / %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-rows">
+                        {% if results %}
+                            {% for t in results.transactions %}
+                            <tr>
+                                <td>{{ t.date }}</td>
+                                <td style="font-weight: 700; color: {% if t.type == 'BUY' %}#34d399{% else %}#f87171{% endif %};">{{ t.type }}</td>
+                                <td style="font-weight: 700;">{{ t.symbol }}</td>
+                                <td>{{ t.qty }}</td>
+                                <td>₹{{ t.price|floatformat:2 }}</td>
+                                <td>₹{{ t.value|floatformat:2 }}</td>
+                                <td class="{% if t.pnl >= 0 %}trend-up{% else %}trend-down{% endif %}">
+                                    {% if t.type == 'SELL' %}
+                                        ₹{{ t.pnl|floatformat:2 }} ({% if t.pnl >= 0 %}+{% endif %}{{ t.pnl_pct|floatformat:2 }}%)
+                                    {% else %}
+                                        –
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div style="display: flex; justify-content: center; margin-bottom: 24px;">
+            <button class="submit-btn" style="background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15);" onclick="resetBacktestPage()">Configure New Run</button>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let pollInterval = null;
+    let chartInstance = null;
+    
+    function setQuickScenario(years) {
+        const today = new Date();
+        const start = new Date();
+        start.setFullYear(today.getFullYear() - years);
+        
+        document.getElementById('start_date').value = start.toISOString().split('T')[0];
+        document.getElementById('end_date').value = today.toISOString().split('T')[0];
+        
+        document.getElementById('category').value = 'Nifty100';
+        document.getElementById('capital').value = '1000000';
+        document.getElementById('top_n').value = '20';
+        document.getElementById('rebalance_freq').value = 'M';
+        document.getElementById('transaction_cost').value = '0.001';
+    }
+
+    function checkBacktestStatus() {
+        fetch("{% url 'backtest_status' %}")
+            .then(res => res.json())
+            .then(data => {
+                if (data.running) {
+                    document.getElementById('config-panel').style.display = 'none';
+                    document.getElementById('loading-panel').style.display = 'block';
+                    document.getElementById('error-panel').style.display = 'none';
+                    document.getElementById('results-panel').style.display = 'none';
+                    if (!pollInterval) {
+                        pollInterval = setInterval(checkBacktestStatus, 3000);
+                    }
+                } else {
+                    if (pollInterval) {
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                    }
+                    
+                    document.getElementById('loading-panel').style.display = 'none';
+                    
+                    if (data.error) {
+                        document.getElementById('error-panel').style.display = 'block';
+                        document.getElementById('error-msg').innerText = data.error;
+                        document.getElementById('config-panel').style.display = 'none';
+                        document.getElementById('results-panel').style.display = 'none';
+                    } else if (data.success && data.results) {
+                        displayResults(data.results);
+                    } else {
+                        document.getElementById('config-panel').style.display = 'block';
+                        document.getElementById('results-panel').style.display = 'none';
+                    }
+                }
+            })
+            .catch(err => console.error("Error checking backtest status:", err));
+    }
+
+    function displayResults(res) {
+        document.getElementById('config-panel').style.display = 'none';
+        document.getElementById('results-panel').style.display = 'flex';
+        document.getElementById('error-panel').style.display = 'none';
+
+        // Update KPIs
+        document.getElementById('kpi-cagr').innerText = res.cagr + "%";
+        document.getElementById('kpi-bm-cagr').innerText = "Benchmark: " + res.bm_cagr + "%";
+        document.getElementById('kpi-total-return').innerText = res.total_return + "%";
+        document.getElementById('kpi-bm-return').innerText = "Benchmark: " + res.bm_return + "%";
+        document.getElementById('kpi-win-rate').innerText = res.win_rate + "%";
+        document.getElementById('kpi-drawdown').innerText = "-" + res.max_drawdown + "%";
+        document.getElementById('kpi-trades').innerText = res.total_trades;
+
+        // Render Table Rows
+        const tbody = document.getElementById('transaction-rows');
+        tbody.innerHTML = '';
+        res.transactions.forEach(t => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${t.date}</td>
+                <td style="font-weight: 700; color: ${t.type === 'BUY' ? '#34d399' : '#f87171'};">${t.type}</td>
+                <td style="font-weight: 700;">${t.symbol}</td>
+                <td>${t.qty}</td>
+                <td>₹${t.price.toFixed(2)}</td>
+                <td>₹${t.value.toFixed(2)}</td>
+                <td class="${t.pnl >= 0 ? 'trend-up' : 'trend-down'}">
+                    ${t.type === 'SELL' ? `₹${t.pnl.toFixed(2)} (${t.pnl >= 0 ? '+' : ''}${t.pnl_pct.toFixed(2)}%)` : '–'}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Render Chart
+        const ctx = document.getElementById('backtestChart').getContext('2d');
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: res.dates,
+                datasets: [
+                    {
+                        label: 'Strategy Equity',
+                        data: res.equity,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.05)',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        tension: 0.1,
+                        fill: true
+                    },
+                    {
+                        label: 'Benchmark Scaled',
+                        data: res.benchmark,
+                        borderColor: 'rgba(255, 255, 255, 0.35)',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        },
+                        ticks: {
+                            color: '#9ca3af',
+                            callback: function(value) {
+                                return '₹' + value.toLocaleString();
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#9ca3af',
+                            maxRotation: 45,
+                            autoSkip: true,
+                            maxTicksLimit: 12
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e5e7eb'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ₹' + context.raw.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function resetBacktestPage() {
+        document.getElementById('results-panel').style.display = 'none';
+        document.getElementById('error-panel').style.display = 'none';
+        document.getElementById('config-panel').style.display = 'block';
+        if (chartInstance) {
+            chartInstance.destroy();
+            chartInstance = null;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        checkBacktestStatus();
+    });
+</script>
+{% endblock %}
